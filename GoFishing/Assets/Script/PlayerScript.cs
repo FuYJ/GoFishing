@@ -235,7 +235,7 @@ public class PlayerScript : MonoBehaviour
 				//GUI.Label(new Rect(500.0f, 30.0f, 150.0f, 200.0f), "Left Button : " + XBikeEventReceiver.Left.ToString(), style);
 				//GUI.Label(new Rect(500.0f, 60.0f, 150.0f, 200.0f), "Right Button : " + XBikeEventReceiver.Right.ToString(), style);
 
-				if(GUI.Button(new Rect(500.0f, 90.0f, 100.0f, 30.0f), playerMode, buttonStyle)){
+				if(GUI.Button(new Rect(Screen.width - 200.0f, 30.0f, 100.0f, 30.0f), playerMode, buttonStyle)){
 					if (playerMode == "boating") {
 						playerMode = "fishing";
 						Vector3 pos = m_transform.position + rodDistance;
@@ -249,13 +249,13 @@ public class PlayerScript : MonoBehaviour
 						m_rod.SetActive (false);
 					}
 			}
-				GUI.Label (new Rect (Screen.width / 2 - 50.0f, 60.0f, 100.0f, 30.0f), "Fish Number" + fishNumber.ToString (), labelStyle);
-				GUI.Label (new Rect (Screen.width / 2 - 50.0f, 100.0f, 100.0f, 30.0f), "Depth" + depth.ToString (), labelStyle);
-				GUI.Label (new Rect (Screen.width / 2 - 50.0f, 140.0f, 100.0f, 30.0f), "Reeling speed" + reelingSpeed.ToString (), labelStyle);
-				GUI.Label (new Rect (500.0f, 70.0f, 100.0f, 30.0f), "isRodReady" + isRodReady.ToString (), labelStyle);
-				GUI.Label (new Rect (500.0f, 130.0f, 100.0f, 30.0f), "isFishing" + isFishing.ToString (), labelStyle);
+				GUI.Label (new Rect (Screen.width / 2 - 50.0f, 30.0f, 100.0f, 30.0f), "Fish Number : " + fishNumber.ToString (), labelStyle);
+				GUI.Label (new Rect (Screen.width / 2 - 50.0f, 70.0f, 100.0f, 30.0f), "Depth : " + depth.ToString (), labelStyle);
+				GUI.Label (new Rect (Screen.width / 2 - 50.0f, 110.0f, 100.0f, 30.0f), "Reeling speed : " + reelingSpeed.ToString (), labelStyle);
+				GUI.Label (new Rect (Screen.width - 200.0f, 80.0f, 100.0f, 30.0f), "isRodReady : " + isRodReady.ToString (), labelStyle);
+				GUI.Label (new Rect (Screen.width - 200.0f, 110.0f, 100.0f, 30.0f), "isFishing : " + isFishing.ToString (), labelStyle);
 			//resistanceValue = GUI.HorizontalSlider(new Rect(Screen.width/2 - 50.0f, 20.0f, 100.0f, 30.0f), resistanceValue, 1.0f, 8.0f);
-				GUI.Label(new Rect(Screen.width/2 - 50.0f, 60.0f, 100.0f, 30.0f), "Resistance Value : " + ((int)resistanceValue).ToString(), labelStyle);
+				//GUI.Label(new Rect(Screen.width/2 - 50.0f, 60.0f, 100.0f, 30.0f), "Resistance Value : " + ((int)resistanceValue).ToString(), labelStyle);
 			/*if (GUI.Button(new Rect(Screen.width/2 - 50.0f, 90.0f, 100.0f, 30.0f), "Set resistance"))
 			{
 				XBikeEventReceiver.SetResistance((int)resistanceValue);
