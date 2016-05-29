@@ -112,7 +112,7 @@
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
  </Reference>
  <Reference Include="JsonFx.Json">
- <HintPath>/Users/fuyiru/Desktop/xbike/GoFishing/Assets/Plugins/JsonFx.Json.dll</HintPath>
+ <HintPath>/Users/fuyiru/GitHub/GoFishing/GoFishing/Assets/Plugins/JsonFx.Json.dll</HintPath>
  </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -18,7 +18,7 @@ public class PlayerScript : MonoBehaviour
 	/*Player parameter*/
 	private float eyeHeight = 12f;
 	private float speed = 5f;
-	private string playerMode = "boating";
+	private string playerMode = "划船中";
 
 
 	/*Rod parameter*/
@@ -115,7 +115,7 @@ public class PlayerScript : MonoBehaviour
 			SendMessageForEachListener("OnXBikeRightPressed", "False");
 		}
 		#endif
-		if (playerMode == "boating") {
+		if (playerMode == "划船中") {
 			Move ();
 		} else {
 			Fish ();
@@ -128,8 +128,10 @@ public class PlayerScript : MonoBehaviour
 		GUIStyle labelStyle = new GUIStyle();
 		#if UNITY_EDITOR
 		labelStyle.fontSize = 20;
+		float buttonWidth = 150.0f;
 		#elif UNITY_ANDROID
 		labelStyle.fontSize = 50;
+		float buttonWidth = 300.0f;
 		#endif
 		labelStyle.alignment = TextAnchor.MiddleCenter;
 		labelStyle.normal.textColor = Color.white;
@@ -137,19 +139,20 @@ public class PlayerScript : MonoBehaviour
 		GUIStyle buttonStyle = new GUIStyle();
 		#if UNITY_EDITOR
 		buttonStyle.fontSize = 20;
+		buttonStyle.fixedWidth = 120;
 		#elif UNITY_ANDROID
 		buttonStyle.fontSize = 50;
+		buttonStyle.fixedWidth = 300;
 		#endif
 		buttonStyle.alignment = TextAnchor.MiddleCenter;
 		//buttonStyle.wordWrap = true;
-		buttonStyle.fixedWidth = 120;
 		buttonStyle.stretchWidth = true;
 		buttonStyle.normal.textColor = Color.black;
 		buttonStyle.normal.background = buttonTexture;
 
 		if (connectionStatus ==  XBikeEventReceiver.ConnectionStatus.Disconnected)
 		{
-			if (GUI.Button(new Rect(Screen.width/2 - 75.0f, Screen.height - 50.0f, 150.0f, 30.0f), "Connect", buttonStyle))
+			if (GUI.Button(new Rect(Screen.width/2 - buttonWidth / 2, Screen.height - 100.0f, buttonWidth, 40.0f), "Connect", buttonStyle))
 			{
 				#if UNITY_EDITOR
 				SendMessageForEachListener("OnXBikeConnectionStatusChange", "1");
@@ -160,8 +163,8 @@ public class PlayerScript : MonoBehaviour
 		}
 	else if (connectionStatus == XBikeEventReceiver.ConnectionStatus.Connecting)
 	{
-			GUI.Label(new Rect(Screen.width/2 - 75.0f, Screen.height/2 - 15.0f, 150.0f, 30.0f), "Connecting", labelStyle);
-			if (GUI.Button(new Rect(Screen.width/2 - 75.0f, Screen.height - 60.0f, 150.0f, 30.0f), "Disconnected", buttonStyle))
+			GUI.Label(new Rect(Screen.width/2 - buttonWidth / 2, Screen.height/2 - 30.0f, buttonWidth, 40.0f), "Connecting", labelStyle);
+			if (GUI.Button(new Rect(Screen.width/2 - buttonWidth / 2, Screen.height - 100.0f, buttonWidth, 40.0f), "Disconnected", buttonStyle))
 		{
 			#if UNITY_EDITOR
 			SendMessageForEachListener("OnXBikeConnectionStatusChange", "0");
@@ -172,7 +175,7 @@ public class PlayerScript : MonoBehaviour
 	}
 	else if (connectionStatus == XBikeEventReceiver.ConnectionStatus.Connected)
 	{
-		GUI.BeginGroup(new Rect(Screen.width/2 - 60.0f, Screen.height - 100.0f, 120.0f, 100.0f));
+			GUI.BeginGroup(new Rect(Screen.width/2 - buttonWidth / 2, Screen.height - 200.0f, buttonWidth, 100.0f));
 		GUILayout.BeginVertical();
 
 		if (sportStatus == XBikeEventReceiver.SportStatus.Stop)
@@ -235,25 +238,26 @@ public class PlayerScript : MonoBehaviour
 				//GUI.Label(new Rect(500.0f, 30.0f, 150.0f, 200.0f), "Left Button : " + XBikeEventReceiver.Left.ToString(), style);
 				//GUI.Label(new Rect(500.0f, 60.0f, 150.0f, 200.0f), "Right Button : " + XBikeEventReceiver.Right.ToString(), style);
 
-				if(GUI.Button(new Rect(Screen.width - 200.0f, 30.0f, 100.0f, 30.0f), playerMode, buttonStyle)){
-					if (playerMode == "boating") {
-						playerMode = "fishing";
+				if(GUI.Button(new Rect(Screen.width - 400.0f, 30.0f, buttonWidth, 50.0f), playerMode, buttonStyle)){
+					if (playerMode == "划船中") {
+						playerMode = "釣魚中";
 						Vector3 pos = m_transform.position + rodDistance;
 						m_rodTransform.position = pos;
 						m_rodTransform.rotation = m_transform.rotation;
 						m_rodTransform.eulerAngles += rodInitialAngles;
 						m_rod.SetActive (true);
 					} else {
-						playerMode = "boating";
+						playerMode = "划船中";
 						m_rodTransform.Translate (10000, 10000, 10000);
 						m_rod.SetActive (false);
 					}
 			}
-				GUI.Label (new Rect (Screen.width / 2 - 50.0f, 30.0f, 100.0f, 30.0f), "Fish Number : " + fishNumber.ToString (), labelStyle);
-				GUI.Label (new Rect (Screen.width / 2 - 50.0f, 70.0f, 100.0f, 30.0f), "Depth : " + depth.ToString (), labelStyle);
-				GUI.Label (new Rect (Screen.width / 2 - 50.0f, 110.0f, 100.0f, 30.0f), "Reeling speed : " + reelingSpeed.ToString (), labelStyle);
-				GUI.Label (new Rect (Screen.width - 200.0f, 80.0f, 100.0f, 30.0f), "isRodReady : " + isRodReady.ToString (), labelStyle);
-				GUI.Label (new Rect (Screen.width - 200.0f, 110.0f, 100.0f, 30.0f), "isFishing : " + isFishing.ToString (), labelStyle);
+				GUI.Label (new Rect (Screen.width / 2 - 50.0f, 30.0f, 100.0f, 30.0f), "已經釣到了 " + fishNumber.ToString () + " 隻魚", labelStyle);
+				GUI.Label (new Rect (Screen.width / 2 - 50.0f, 90.0f, 100.0f, 30.0f), "魚餌深度 : " + depth.ToString (), labelStyle);
+				GUI.Label (new Rect (Screen.width / 2 - 50.0f, 150.0f, 100.0f, 30.0f), "捲線速度 : " + reelingSpeed.ToString (), labelStyle);
+				GUI.Label (new Rect (Screen.width - 400.0f, 120.0f, 100.0f, 30.0f), "拋線準備 : " + isRodReady.ToString (), labelStyle);
+				GUI.Label (new Rect (Screen.width - 400.0f, 170.0f, 100.0f, 30.0f), "正在釣魚 : " + isFishing.ToString (), labelStyle);
+				GUI.Label (new Rect (Screen.width - 400.0f, 220.0f, 100.0f, 30.0f), "捲線方向 : " + (int)XBikeEventReceiver.Data.RPMDirection, labelStyle);
 			//resistanceValue = GUI.HorizontalSlider(new Rect(Screen.width/2 - 50.0f, 20.0f, 100.0f, 30.0f), resistanceValue, 1.0f, 8.0f);
 				//GUI.Label(new Rect(Screen.width/2 - 50.0f, 60.0f, 100.0f, 30.0f), "Resistance Value : " + ((int)resistanceValue).ToString(), labelStyle);
 			/*if (GUI.Button(new Rect(Screen.width/2 - 50.0f, 90.0f, 100.0f, 30.0f), "Set resistance"))
@@ -321,7 +325,7 @@ public class PlayerScript : MonoBehaviour
 			fishNumber++;
 			rodPull = 0;
 			depth = 0f;
-		} else if (depth > 3000f && isFishing) {
+		} else if (depth > 30000f && isFishing) {
 			isFishing = false;
 			reelingSpeed = 0f;
 			m_rodTransform.rotation = m_transform.rotation;
@@ -379,9 +383,9 @@ public class PlayerScript : MonoBehaviour
 				rodAngles.x = 3;
 			}*/
 		if((int)XBikeEventReceiver.Data.RPMDirection == 1 && isFishing)
-				reelingSpeed += (float)XBikeEventReceiver.Data.Speed / 10;
-			else
-				reelingSpeed -= (float)XBikeEventReceiver.Data.Speed / 10;
+				reelingSpeed += (float)XBikeEventReceiver.Data.Speed/10;
+		else if((int)XBikeEventReceiver.Data.RPMDirection == 0 && isFishing)
+				reelingSpeed -= (float)XBikeEventReceiver.Data.Speed/10;
 		}
 		#endif
 		m_rodTransform.eulerAngles += rodAngles;
