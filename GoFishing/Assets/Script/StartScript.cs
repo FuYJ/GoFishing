@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class StartScript : MonoBehaviour
 {
@@ -9,19 +10,23 @@ public class StartScript : MonoBehaviour
 	/// </summary>
 	public float resistanceValue = 1.0f;
 
-	private XBikeEventReceiver.ConnectionStatus connectionStatus = XBikeEventReceiver.ConnectionStatus.Disconnected;
-	private XBikeEventReceiver.SportStatus sportStatus = XBikeEventReceiver.SportStatus.Stop;
-	
-#if UNITY_EDITOR
-	void SendMessageForEachListener(string method, string arg)
-	{
-		XBikeEventReceiver.Listener.ForEach((x) =>
-		{
-			x.SendMessage(method, arg, SendMessageOptions.DontRequireReceiver);
-		});
-	}
-#endif
-	
+//	private XBikeEventReceiver.ConnectionStatus connectionStatus = XBikeEventReceiver.ConnectionStatus.Disconnected;
+//	private XBikeEventReceiver.SportStatus sportStatus = XBikeEventReceiver.SportStatus.Stop;
+    ScenesData _data = new ScenesData();
+    private Timer _timer = new Timer();
+
+    private int DEADLINE = 100;
+
+    private int _buttonWide = Screen.width / 8;
+    private int _buttonHeight = Screen.height / 16;
+
+    private Loading _load;
+
+    public Image _image;
+    public Material[] _material;
+    private int _imageCount = 0;
+    private int MATERIAL_SIZE = 4;
+
 	/// <summary>
 	/// set connection status change event and sport status change event
 	/// </summary>
@@ -30,156 +35,105 @@ public class StartScript : MonoBehaviour
 		XBikeEventReceiver.connectStatusChangeEvent		+= OnXBikeConnectionStatusChange;
 		XBikeEventReceiver.sportStatusChangeEvent		+= OnXBikeSportStatusChange;
 	}
-	
+
 	void Update ()
 	{
-#if UNITY_EDITOR
-		// Fill fake sport data
-		string dataString = "{" +
-			"\"rpmDirection\":1," +
-			"\"distance\":0," + 
-			"\"speed\":0," + 
-			"\"watt\":0," + 
-			"\"rpm\":150," + 
-			"\"resistance\":1," + 
-			"\"calories\":0," + 
-			"\"leftRightSensor\":186," +
-			"\"upDownSensor\":186," +
-			"\"bpm\":0}";
-		SendMessageForEachListener("OnXBikeDataChange", dataString);
-		
+		#if UNITY_EDITOR
+
 		// Pressed mouse left button call OnXBikeLeftPressed true
 		if( Input.GetMouseButtonDown(0) )
 		{
-			SendMessageForEachListener("OnXBikeLeftPressed", "True");
+            _data.SendMessageForEachListener("OnXBikeLeftPressed", "True");
 		}
 		// Release mouse left button call OnXBikeLeftPressed false
 		else if( Input.GetMouseButtonUp(0) )
 		{
-			SendMessageForEachListener("OnXBikeLeftPressed", "False");
+            _data.SendMessageForEachListener("OnXBikeLeftPressed", "False");
 		}
 		// Pressed mouse right button call OnXBikeRightPressed true
 		if( Input.GetMouseButtonDown(1) )
 		{
-			SendMessageForEachListener("OnXBikeRightPressed", "True");
+            _data.SendMessageForEachListener("OnXBikeRightPressed", "True");
 		}
 		// Release mouse right button call OnXBikeRightPressed false
 		else if( Input.GetMouseButtonUp(1) )
 		{
-			SendMessageForEachListener("OnXBikeRightPressed", "False");
+            _data.SendMessageForEachListener("OnXBikeRightPressed", "False");
 		}
-#endif
-	}
-	
+
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+
+            _image.material = _material[_imageCount];
+            _imageCount++;
+            if (_imageCount >= 4)
+                _imageCount = 0;
+        }
+        #endif
+    }
+
 	void OnGUI ()
 	{
-		if (connectionStatus ==  XBikeEventReceiver.ConnectionStatus.Disconnected)
+        if (_data.ConnectionStatus ==  XBikeEventReceiver.ConnectionStatus.Disconnected)
 		{
-			if (GUI.Button(new Rect(Screen.width/2 - 50.0f, Screen.height - 50.0f, 100.0f, 30.0f), "Connect"))
+            _timer.Start_Time = false;
+            _image.material = null;
+
+            if (GUI.Button(new Rect(Screen.width / 2 - _buttonWide / 2, Screen.height - _buttonHeight * 3, _buttonWide, _buttonHeight), "Connect"))
 			{
 #if UNITY_EDITOR
-				SendMessageForEachListener("OnXBikeConnectionStatusChange", "1");
+                _data.SendMessageForEachListener("OnXBikeConnectionStatusChange", "1");
 #elif UNITY_ANDROID
-				XBikeEventReceiver.Connect();
+                XBikeEventReceiver.Connect();
 #endif
-			}
+            }
 		}
-		else if (connectionStatus == XBikeEventReceiver.ConnectionStatus.Connecting)
+		else if (_data.ConnectionStatus == XBikeEventReceiver.ConnectionStatus.Connecting)
 		{
-			GUI.Label(new Rect(Screen.width/2 - 30.0f, Screen.height/2 - 15.0f, 65.0f, 30.0f), "Connecting");
-			if (GUI.Button(new Rect(Screen.width/2 - 50.0f, Screen.height - 50.0f, 100.0f, 30.0f), "Disconnected"))
-			{
-				Application.LoadLevel ("Stage1Scene");
-#if UNITY_EDITOR
-				SendMessageForEachListener("OnXBikeConnectionStatusChange", "0");
-#elif UNITY_ANDROID
-				XBikeEventReceiver.Disconnect();
-#endif
-			}
-		}
-		else if (connectionStatus == XBikeEventReceiver.ConnectionStatus.Connected)
+            if (_timer.Start_Time)
+            {
+                _image.material = _material[_timer.Time_i % 4];
+                _timer.Update();
+            }
+            else
+            {
+                _timer.Start_Time = true;
+            }
+        }
+		else if (_data.ConnectionStatus == XBikeEventReceiver.ConnectionStatus.Connected)
 		{
-			Application.LoadLevel ("Stage1Scene");
-			GUI.BeginGroup(new Rect(Screen.width/2 - 50.0f, Screen.height - 100.0f, 100.0f, 100.0f));
+            _timer.Start_Time = false;
+            _image.material = null;
+            GUI.BeginGroup(new Rect(Screen.width/2 - _buttonWide / 2, Screen.height - _buttonHeight * 4, _buttonWide, _buttonHeight * 4));
 			GUILayout.BeginVertical();
-			
-			if (sportStatus == XBikeEventReceiver.SportStatus.Stop)
+
+			if (_data.SportStatus == XBikeEventReceiver.SportStatus.Stop)
 			{
-				if (GUILayout.Button("Start sport"))
+				if (GUILayout.Button("Start sport", GUILayout.Width(_buttonWide), GUILayout.Height(_buttonHeight)))
 				{
 					StartSport();
 				}
-				if (GUILayout.Button("Disconnected"))
+				if (GUILayout.Button("Disconnected", GUILayout.Width(_buttonWide), GUILayout.Height(_buttonHeight)))
 				{
-#if UNITY_EDITOR
-					SendMessageForEachListener("OnXBikeConnectionStatusChange", "0");
-#elif UNITY_ANDROID
+                    #if UNITY_EDITOR
+                    _data.SendMessageForEachListener("OnXBikeConnectionStatusChange", "0");
+					#elif UNITY_ANDROID
 					XBikeEventReceiver.Disconnect();
-#endif
-				}
-			}
-			else if (sportStatus == XBikeEventReceiver.SportStatus.Start)
-			{
-				if (GUILayout.Button("Pause sport"))
-				{
-					PauseSport();
-				}
-				if (GUILayout.Button("Stop sport"))
-				{
-					StopSport();
-				}
-				if (GUILayout.Button("Disconnected"))
-				{
-#if UNITY_EDITOR
-					SendMessageForEachListener("OnXBikeConnectionStatusChange", "0");
-#elif UNITY_ANDROID
-					XBikeEventReceiver.Disconnect();
-#endif
-				}
-			}
-			else if (sportStatus == XBikeEventReceiver.SportStatus.Pause)
-			{
-				if (GUILayout.Button("Start sport"))
-				{
-					StartSport();
-				}
-				if (GUILayout.Button("Disconnected"))
-				{
-#if UNITY_EDITOR
-					SendMessageForEachListener("OnXBikeConnectionStatusChange", "0");
-#elif UNITY_ANDROID
-					XBikeEventReceiver.Disconnect();
-#endif
+					#endif
 				}
 			}
 			GUILayout.EndVertical();
 			GUI.EndGroup();
-			
-			if (sportStatus == XBikeEventReceiver.SportStatus.Start)
-			{
-				// Show current sport data
-				GUI.Label(new Rect(50.0f, 30.0f, 200.0f, Screen.height - 30.0f), XBikeEventReceiver.Data.ToString());
-				// Show left an buuton status
-				GUI.Label(new Rect(500.0f, 30.0f, 150.0f, 200.0f), "Left Button : " + XBikeEventReceiver.Left.ToString());
-				GUI.Label(new Rect(500.0f, 60.0f, 150.0f, 200.0f), "Right Button : " + XBikeEventReceiver.Right.ToString());
-				
-				resistanceValue = GUI.HorizontalSlider(new Rect(Screen.width/2 - 50.0f, 20.0f, 100.0f, 30.0f), resistanceValue, 1.0f, 8.0f);
-				GUI.Label(new Rect(Screen.width/2 - 50.0f, 60.0f, 100.0f, 30.0f), ((int)resistanceValue).ToString());
-				if (GUI.Button(new Rect(Screen.width/2 - 50.0f, 90.0f, 100.0f, 30.0f), "Set resistance"))
-				{
-					XBikeEventReceiver.SetResistance((int)resistanceValue);
-				}
-			}
 		}
 	}
-#if UNITY_EDITOR
+	#if UNITY_EDITOR
 	private IEnumerator WaitTime(float time)
 	{
 		yield return new WaitForSeconds(time);
-		SendMessageForEachListener("OnXBikeConnectionStatusChange", "2");
+        _data.SendMessageForEachListener("OnXBikeConnectionStatusChange", "2");
 	}
-#endif
-			
+	#endif
+
 	/// <summary>
 	/// called when the connectivity changes
 	/// </summary>
@@ -188,17 +142,17 @@ public class StartScript : MonoBehaviour
 	/// </param>
 	private void OnXBikeConnectionStatusChange(string status)
 	{
-		connectionStatus = (XBikeEventReceiver.ConnectionStatus)int.Parse(status);
-		switch (connectionStatus)
+        _data.ConnectionStatus = (XBikeEventReceiver.ConnectionStatus)int.Parse(status);
+		switch (_data.ConnectionStatus)
 		{
-			case XBikeEventReceiver.ConnectionStatus.Connecting:
+		case XBikeEventReceiver.ConnectionStatus.Connecting:
 			{
 				#if UNITY_EDITOR
-					StartCoroutine(WaitTime(3.0f));
+				StartCoroutine(WaitTime(3.0f));
 				#endif
 				break;
 			}
-			case XBikeEventReceiver.ConnectionStatus.Connected:
+		case XBikeEventReceiver.ConnectionStatus.Connected:
 			{
 				break;
 			}
@@ -212,51 +166,51 @@ public class StartScript : MonoBehaviour
 	/// </param>
 	private void OnXBikeSportStatusChange(string status)
 	{
-		sportStatus = (XBikeEventReceiver.SportStatus)int.Parse(status);
-		switch (sportStatus)
+        _data.SportStatus = (XBikeEventReceiver.SportStatus)int.Parse(status);
+		switch (_data.SportStatus)
 		{
-			case XBikeEventReceiver.SportStatus.Stop:
+		case XBikeEventReceiver.SportStatus.Stop:
 			{
-				sportStatus = XBikeEventReceiver.SportStatus.Stop;
+                _data.SportStatus = XBikeEventReceiver.SportStatus.Stop;
 				break;
 			}
-			case XBikeEventReceiver.SportStatus.Pause:
+		case XBikeEventReceiver.SportStatus.Pause:
 			{
-				sportStatus = XBikeEventReceiver.SportStatus.Pause;
+                _data.SportStatus = XBikeEventReceiver.SportStatus.Pause;
 				break;
 			}
-			case XBikeEventReceiver.SportStatus.Start:
+		case XBikeEventReceiver.SportStatus.Start:
 			{
-				sportStatus = XBikeEventReceiver.SportStatus.Start;
+                _data.SportStatus = XBikeEventReceiver.SportStatus.Start;
 				break;
 			}
 		}
 	}
-	
+
 	private void StopSport()
 	{
-#if UNITY_EDITOR
-		SendMessageForEachListener("OnXBikeSportStatusChange", "0");
-#elif UNITY_ANDROID
+        #if UNITY_EDITOR
+        _data.SendMessageForEachListener("OnXBikeSportStatusChange", "0");
+		#elif UNITY_ANDROID
 		XBikeEventReceiver.StopSport();
-#endif
+		#endif
 	}
-	
+
 	private void StartSport()
 	{
-#if UNITY_EDITOR
-		SendMessageForEachListener("OnXBikeSportStatusChange", "1");
-#elif UNITY_ANDROID
+        #if UNITY_EDITOR
+        _data.SendMessageForEachListener("OnXBikeSportStatusChange", "1");
+		#elif UNITY_ANDROID
 		XBikeEventReceiver.StartSport();
-#endif
+		#endif
 	}
-	
+
 	private void PauseSport()
 	{
-#if UNITY_EDITOR
-		SendMessageForEachListener("OnXBikeSportStatusChange", "2");
-#elif UNITY_ANDROID
+        #if UNITY_EDITOR
+        _data.SendMessageForEachListener("OnXBikeSportStatusChange", "2");
+		#elif UNITY_ANDROID
 		XBikeEventReceiver.PauseSport();
-#endif
+		#endif
 	}
 }

@@ -46,10 +46,17 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Script\GameManager.cs" />
+     <Compile Include="Assets\Script\Loading.cs" />
      <Compile Include="Assets\Script\PlayerScript.cs" />
+     <Compile Include="Assets\Script\PlayerScript.old.cs" />
+     <Compile Include="Assets\Script\ScenesData.cs" />
      <Compile Include="Assets\Script\Stage1Script.cs" />
      <Compile Include="Assets\Script\Stage2Script.cs" />
      <Compile Include="Assets\Script\StartScript.cs" />
+     <Compile Include="Assets\Script\StartScript.old.cs" />
+     <Compile Include="Assets\Script\Timer.cs" />
+     <Compile Include="Assets\Script\UI\Grid.cs" />
+     <Compile Include="Assets\Script\UI\PlayerState.cs" />
      <Compile Include="Assets\Script\XBike\BluetoothDeviceInfo.cs" />
      <Compile Include="Assets\Script\XBike\XBikeEventReceiver.cs" />
      <Compile Include="Assets\Script\XBike\XBikeLogger.cs" />

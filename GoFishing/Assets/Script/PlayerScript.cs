@@ -1,24 +1,24 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
-public class PlayerScript : MonoBehaviour
-{
+public class PlayerScript : MonoBehaviour {
+
+
 	/*XBike parameters setup*/
 	private XBikeEventReceiver.ConnectionStatus connectionStatus = XBikeEventReceiver.ConnectionStatus.Disconnected;
 	private XBikeEventReceiver.SportStatus sportStatus = XBikeEventReceiver.SportStatus.Stop;
 	public float resistanceValue = 1.0f;
 
 	Transform m_transform;
-	public Transform m_camTransform;
-	public Transform m_boatTransform;
 	public GameObject m_rod;
 	public Transform m_rodTransform;
-	public CharacterController m_boatCharacterController;
+	public CharacterController m_CharacterController;
 
 	/*Player parameter*/
-	private float eyeHeight = 12f;
+	//private float eyeHeight = 12f;
 	private float speed = 5f;
-	private string playerMode = "划船中";
+	private PlayerState m_playerState;
+	private string playerMode = "boating";
 
 
 	/*Rod parameter*/
@@ -37,6 +37,11 @@ public class PlayerScript : MonoBehaviour
 
 	/*Button Style*/
 	public Texture2D buttonTexture;
+
+	/*UI control*/
+	public TextMesh meterTitle;
+	public TextMesh meterData;
+
 
 	#if UNITY_EDITOR
 	void SendMessageForEachListener(string method, string arg)
@@ -62,18 +67,13 @@ public class PlayerScript : MonoBehaviour
 	void Start ()
 	{
 		m_transform = this.transform;
-
-		Vector3 pos = m_transform.position;
-		m_boatTransform.position = pos;
-		pos.y += eyeHeight;
-		m_camTransform.position = pos;
-
-		m_camTransform.rotation = m_transform.rotation;
-		m_boatTransform.rotation = m_transform.rotation;
 		m_rodTransform.rotation = m_transform.rotation;
 
 		m_rodTransform.Translate (10000, 10000, 10000);
 		m_rod.SetActive (false);
+
+		m_playerState = this.GetComponentsInChildren<PlayerState>()[0];
+		m_playerState.PlayerModeChanged += ChangePlayerState;
 	}
 
 	// Update is called once per frame
@@ -115,7 +115,7 @@ public class PlayerScript : MonoBehaviour
 			SendMessageForEachListener("OnXBikeRightPressed", "False");
 		}
 		#endif
-		if (playerMode == "划船中") {
+		if (playerMode == "boating") {
 			Move ();
 		} else {
 			Fish ();
@@ -161,30 +161,10 @@ public class PlayerScript : MonoBehaviour
 				#endif
 			}
 		}
-	else if (connectionStatus == XBikeEventReceiver.ConnectionStatus.Connecting)
-	{
+		else if (connectionStatus == XBikeEventReceiver.ConnectionStatus.Connecting)
+		{
 			GUI.Label(new Rect(Screen.width/2 - buttonWidth / 2, Screen.height/2 - 30.0f, buttonWidth, 40.0f), "Connecting", labelStyle);
 			if (GUI.Button(new Rect(Screen.width/2 - buttonWidth / 2, Screen.height - 100.0f, buttonWidth, 40.0f), "Disconnected", buttonStyle))
-		{
-			#if UNITY_EDITOR
-			SendMessageForEachListener("OnXBikeConnectionStatusChange", "0");
-			#elif UNITY_ANDROID
-			XBikeEventReceiver.Disconnect();
-			#endif
-		}
-	}
-	else if (connectionStatus == XBikeEventReceiver.ConnectionStatus.Connected)
-	{
-			GUI.BeginGroup(new Rect(Screen.width/2 - buttonWidth / 2, Screen.height - 200.0f, buttonWidth, 100.0f));
-		GUILayout.BeginVertical();
-
-		if (sportStatus == XBikeEventReceiver.SportStatus.Stop)
-		{
-				if (GUILayout.Button("Start sport", buttonStyle))
-			{
-				StartSport();
-			}
-				if (GUILayout.Button("Disconnected", buttonStyle))
 			{
 				#if UNITY_EDITOR
 				SendMessageForEachListener("OnXBikeConnectionStatusChange", "0");
@@ -193,7 +173,27 @@ public class PlayerScript : MonoBehaviour
 				#endif
 			}
 		}
-		/*else if (sportStatus == XBikeEventReceiver.SportStatus.Start)
+		else if (connectionStatus == XBikeEventReceiver.ConnectionStatus.Connected)
+		{
+			GUI.BeginGroup(new Rect(Screen.width/2 - buttonWidth / 2, Screen.height - 200.0f, buttonWidth, 100.0f));
+			GUILayout.BeginVertical();
+
+			if (sportStatus == XBikeEventReceiver.SportStatus.Stop)
+			{
+				if (GUILayout.Button("Start sport", buttonStyle))
+				{
+					StartSport();
+				}
+				if (GUILayout.Button("Disconnected", buttonStyle))
+				{
+					#if UNITY_EDITOR
+					SendMessageForEachListener("OnXBikeConnectionStatusChange", "0");
+					#elif UNITY_ANDROID
+					XBikeEventReceiver.Disconnect();
+					#endif
+				}
+			}
+			/*else if (sportStatus == XBikeEventReceiver.SportStatus.Start)
 		{
 				if (GUILayout.Button("Pause sport", buttonStyle))
 			{
@@ -212,29 +212,29 @@ public class PlayerScript : MonoBehaviour
 				#endif
 			}
 		}*/
-		else if (sportStatus == XBikeEventReceiver.SportStatus.Pause)
-		{
+			else if (sportStatus == XBikeEventReceiver.SportStatus.Pause)
+			{
 				if (GUILayout.Button("Start sport", buttonStyle))
-			{
-				StartSport();
-			}
+				{
+					StartSport();
+				}
 				if (GUILayout.Button("Disconnected", buttonStyle))
-			{
-				#if UNITY_EDITOR
-				SendMessageForEachListener("OnXBikeConnectionStatusChange", "0");
-				#elif UNITY_ANDROID
-				XBikeEventReceiver.Disconnect();
-				#endif
+				{
+					#if UNITY_EDITOR
+					SendMessageForEachListener("OnXBikeConnectionStatusChange", "0");
+					#elif UNITY_ANDROID
+					XBikeEventReceiver.Disconnect();
+					#endif
+				}
 			}
-		}
-		GUILayout.EndVertical();
-		GUI.EndGroup();
+			GUILayout.EndVertical();
+			GUI.EndGroup();
 
-		if (sportStatus == XBikeEventReceiver.SportStatus.Start)
-		{
-			// Show current sport data
+			if (sportStatus == XBikeEventReceiver.SportStatus.Start)
+			{
+				// Show current sport data
 				//GUI.Label(new Rect(30.0f, 30.0f, 200.0f, Screen.height - 30.0f), XBikeEventReceiver.Data.ToString(), buttonStyle);
-			// Show left an buuton status
+				// Show left an buuton status
 				//GUI.Label(new Rect(500.0f, 30.0f, 150.0f, 200.0f), "Left Button : " + XBikeEventReceiver.Left.ToString(), style);
 				//GUI.Label(new Rect(500.0f, 60.0f, 150.0f, 200.0f), "Right Button : " + XBikeEventReceiver.Right.ToString(), style);
 
@@ -251,21 +251,20 @@ public class PlayerScript : MonoBehaviour
 						m_rodTransform.Translate (10000, 10000, 10000);
 						m_rod.SetActive (false);
 					}
-			}*/
-				//GUI.Label (new Rect (Screen.width / 2 - 50.0f, 30.0f, 100.0f, 30.0f), "已經釣到了 " + fishNumber.ToString () + " 隻魚", labelStyle);
-				//GUI.Label (new Rect (Screen.width / 2 - 50.0f, 90.0f, 100.0f, 30.0f), "魚餌深度 : " + depth.ToString (), labelStyle);
-				//GUI.Label (new Rect (Screen.width / 2 - 50.0f, 150.0f, 100.0f, 30.0f), "捲線速度 : " + reelingSpeed.ToString (), labelStyle);
-				//GUI.Label (new Rect (Screen.width - 200.0f, 120.0f, 100.0f, 30.0f), "拋線準備 : " + isRodReady.ToString (), labelStyle);
-				//GUI.Label (new Rect (Screen.width - 200.0f, 170.0f, 100.0f, 30.0f), "正在釣魚 : " + isFishing.ToString (), labelStyle);
-				//GUI.Label (new Rect (Screen.width - 200.0f, 220.0f, 100.0f, 30.0f), "捲線方向 : " + (int)XBikeEventReceiver.Data.RPMDirection, labelStyle);
-			//resistanceValue = GUI.HorizontalSlider(new Rect(Screen.width/2 - 50.0f, 20.0f, 100.0f, 30.0f), resistanceValue, 1.0f, 8.0f);
-				//GUI.Label(new Rect(Screen.width/2 - 50.0f, 60.0f, 100.0f, 30.0f), "Resistance Value : " + ((int)resistanceValue).ToString(), labelStyle);
-			/*if (GUI.Button(new Rect(Screen.width/2 - 50.0f, 90.0f, 100.0f, 30.0f), "Set resistance"))
+			}
+				GUI.Label (new Rect (Screen.width / 2 - 50.0f, 30.0f, 100.0f, 30.0f), "已經釣到了 " + fishNumber.ToString () + " 隻魚", labelStyle);
+				GUI.Label (new Rect (Screen.width / 2 - 50.0f, 90.0f, 100.0f, 30.0f), "魚餌深度 : " + depth.ToString (), labelStyle);
+				GUI.Label (new Rect (Screen.width / 2 - 50.0f, 150.0f, 100.0f, 30.0f), "捲線速度 : " + reelingSpeed.ToString (), labelStyle);
+				GUI.Label (new Rect (Screen.width - 200.0f, 120.0f, 100.0f, 30.0f), "拋線準備 : " + isRodReady.ToString (), labelStyle);
+				GUI.Label (new Rect (Screen.width - 200.0f, 170.0f, 100.0f, 30.0f), "正在釣魚 : " + isFishing.ToString (), labelStyle);
+				resistanceValue = GUI.HorizontalSlider(new Rect(Screen.width/2 - 50.0f, 20.0f, 100.0f, 30.0f), resistanceValue, 1.0f, 8.0f);
+				GUI.Label(new Rect(Screen.width/2 - 50.0f, 60.0f, 100.0f, 30.0f), "Resistance Value : " + ((int)resistanceValue).ToString(), labelStyle);*/
+				/*if (GUI.Button(new Rect(Screen.width/2 - 50.0f, 90.0f, 100.0f, 30.0f), "Set resistance"))
 			{
 				XBikeEventReceiver.SetResistance((int)resistanceValue);
 			}*/
+			}
 		}
-	}
 	}
 
 	void Move ()
@@ -294,21 +293,21 @@ public class PlayerScript : MonoBehaviour
 			rot += speed * ((((float)XBikeEventReceiver.Data.LeftRightSensor - 180)) / 10) * Time.deltaTime;
 		}
 		#endif
+		move = (move < 8) ? move : 8;
 
-		m_boatCharacterController.Move (m_boatTransform.TransformDirection (new Vector3 (0, 0, move)));
-		Vector3 pos = m_boatTransform.position;
-		m_transform.position = pos;
-		m_rodTransform.position = pos + rodDistance;
-		pos.y += eyeHeight;
-		m_camTransform.position = pos;
-		m_rodTransform.eulerAngles += new Vector3 (0, rot, 0);
+		m_CharacterController.Move (m_transform.TransformDirection (new Vector3 (0, 0, move)));
 		m_transform.eulerAngles += new Vector3 (0, rot, 0);
-		m_camTransform.eulerAngles += new Vector3 (0, rot, 0);
-		m_boatTransform.eulerAngles += new Vector3 (0, rot, 0);
+
+		/*Update meter data*/
+		meterData.text = ((int)Mathf.Abs((move * 10))).ToString();
 	}
 
 	void Fish ()
 	{
+
+		/*
+		 	Fish would escape according to its weight
+		*/
 		timeSlice -= Time.deltaTime;
 		if (timeSlice <= 0) {
 			timeSlice = 0.1f;
@@ -317,6 +316,11 @@ public class PlayerScript : MonoBehaviour
 				depth -= reelingSpeed;
 			}
 		}
+
+		/*
+			If depth <= 0, then player got a fish,
+			else if depth > 30000, then the fish escaped.
+		*/
 		if (depth <= 0 && isFishing) {
 			isFishing = false;
 			reelingSpeed = 0f;
@@ -333,12 +337,14 @@ public class PlayerScript : MonoBehaviour
 			rodPull = 0;
 			depth = 0f;
 		}
-		#if UNITY_EDITOR
+
 		rodAngles.x = 0;
+		#if UNITY_EDITOR
 		if (Input.GetKey (KeyCode.W) && !isRodReady && !isFishing) {
 			rodPull++;
 			rodAngles.x = -1;
-			if(rodPull > 60)
+			//Debug.Log(m_rodTransform.eulerAngles.x);
+			if(m_rodTransform.eulerAngles.x > 270)
 				isRodReady = true;
 		}
 		if (Input.GetKey (KeyCode.S) && isRodReady && !isFishing) {
@@ -359,37 +365,52 @@ public class PlayerScript : MonoBehaviour
 		}
 		#elif UNITY_ANDROID
 		if(sportStatus == XBikeEventReceiver.SportStatus.Start){
-			if(!isRodReady){
-				m_rodTransform.rotation = m_transform.rotation;
-				Vector3 rot = rodInitialAngles;
-				rot.x -= 180 * ((int)XBikeEventReceiver.Data.UpDownSensor - 180);
-				m_rodTransform.eulerAngles += rot; 
+			if(!isRodReady && !isFishing){
+				rodAngles.x = (Mathf.Abs((int)XBikeEventReceiver.Data.UpDownSensor - 180) > 5) ? (((int)XBikeEventReceiver.Data.UpDownSensor > 0) ? 185 - (int)XBikeEventReceiver.Data.UpDownSensor : 175 - (int)XBikeEventReceiver.Data.UpDownSensor) : 0;
 			}
-			if((int)XBikeEventReceiver.Data.UpDownSensor / 10 > 19 && !isRodReady && !isFishing){
+			if(m_rodTransform.eulerAngles.x > 270 && !isRodReady && !isFishing){
 				isRodReady = true;
 			}
 			if((bool)XBikeEventReceiver.Right && isRodReady && !isFishing){
 				isRodReady = false;
 				isFishing = true;
-				rodAngles.x = 2;
 				depth = 300f;
-				reelingSpeed = 0f;
 			}
-			/*if((int)XBikeEventReceiver.Data.UpDownSensor / 10 < 17 && isRodReady && !isFishing){
-				isRodReady = false;
-				isFishing = true;
-				depth = 300f;
-				isRodReady = true; 
-				rodAngles.x = 3;
-			}*/
-		if((int)XBikeEventReceiver.Data.RPMDirection == 1 && isFishing)
+			if((int)XBikeEventReceiver.Data.RPMDirection == 1 && isFishing)
 				reelingSpeed += (float)XBikeEventReceiver.Data.Speed/10;
-		else if((int)XBikeEventReceiver.Data.RPMDirection == 0 && isFishing)
+			else if((int)XBikeEventReceiver.Data.RPMDirection == 0 && isFishing)
 				reelingSpeed -= (float)XBikeEventReceiver.Data.Speed/10;
 		}
 		#endif
 		m_rodTransform.eulerAngles += rodAngles;
 	}
+
+	void ChangePlayerState(){
+		if (playerMode == "boating") {
+			playerMode = "fishing";
+			Vector3 pos = m_transform.position + rodDistance;
+			m_rodTransform.position = pos;
+			m_rodTransform.rotation = m_transform.rotation;
+			m_rodTransform.eulerAngles += rodInitialAngles;
+			m_rod.SetActive (true);
+		} else {
+			playerMode = "boating";
+			m_rodTransform.Translate (10000, 10000, 10000);
+			m_rod.SetActive (false);
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
 
 	#if UNITY_EDITOR
 	private IEnumerator WaitTime(float time)
