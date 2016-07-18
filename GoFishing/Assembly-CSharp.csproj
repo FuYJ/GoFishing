@@ -57,6 +57,7 @@
      <Compile Include="Assets\Script\Timer.cs" />
      <Compile Include="Assets\Script\UI\Grid.cs" />
      <Compile Include="Assets\Script\UI\PlayerState.cs" />
+     <Compile Include="Assets\Script\UI\ScoreBoard.cs" />
      <Compile Include="Assets\Script\XBike\BluetoothDeviceInfo.cs" />
      <Compile Include="Assets\Script\XBike\XBikeEventReceiver.cs" />
      <Compile Include="Assets\Script\XBike\XBikeLogger.cs" />

@@ -17,12 +17,12 @@ public class Grid : MonoBehaviour {
 		if (_isGridOn) {
 			_isGridOn = false;
 			m_grid.SetActive (false);
-			m_gridState.text = "Grid off";
+			m_gridState.text = "格線關閉";
 		}
 		else {
 			_isGridOn = true;
 			m_grid.SetActive (true);
-			m_gridState.text = "Grid on";
+			m_gridState.text = "格線開啟";
 		}
 		//Debug.Log ("Click grid");
 	}

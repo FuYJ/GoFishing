@@ -9,6 +9,7 @@ public class PlayerScript : MonoBehaviour {
 	private XBikeEventReceiver.SportStatus sportStatus = XBikeEventReceiver.SportStatus.Stop;
 	public float resistanceValue = 1.0f;
 
+	/*Player's gameobjects*/
 	Transform m_transform;
 	public GameObject m_rod;
 	public Transform m_rodTransform;
@@ -42,6 +43,16 @@ public class PlayerScript : MonoBehaviour {
 	public TextMesh meterTitle;
 	public TextMesh meterData;
 
+
+	public delegate void FishGottenEventHandler();
+	public event FishGottenEventHandler FishGotten;
+
+
+	public int FishNumber{
+		get{
+			return fishNumber;
+		}
+	}
 
 	#if UNITY_EDITOR
 	void SendMessageForEachListener(string method, string arg)
@@ -329,6 +340,7 @@ public class PlayerScript : MonoBehaviour {
 			fishNumber++;
 			rodPull = 0;
 			depth = 0f;
+			NotifyObserver ();
 		} else if (depth > 30000f && isFishing) {
 			isFishing = false;
 			reelingSpeed = 0f;
@@ -349,7 +361,7 @@ public class PlayerScript : MonoBehaviour {
 		}
 		if (Input.GetKey (KeyCode.S) && isRodReady && !isFishing) {
 			rodPull--;
-			rodAngles.x = 2;
+			rodAngles.x = 1;
 			if(rodPull < 0){
 				isRodReady = false;
 				isFishing = true;
@@ -400,6 +412,11 @@ public class PlayerScript : MonoBehaviour {
 		}
 	}
 
+	void NotifyObserver(){
+		if (FishGotten != null) {
+			FishGotten ();
+		}
+	}
 
 
 
