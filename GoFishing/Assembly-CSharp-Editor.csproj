@@ -91,6 +91,12 @@
  <Reference Include="JsonFx.Json">
  <HintPath>/Users/fuyiru/GitHub/GoFishing/GoFishing/Assets/Plugins/JsonFx.Json.dll</HintPath>
  </Reference>
+ <Reference Include="Mono.Data.Sqlite">
+ <HintPath>/Users/fuyiru/GitHub/GoFishing/GoFishing/Assets/Plugins/Mono.Data.Sqlite.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Data">
+ <HintPath>/Users/fuyiru/GitHub/GoFishing/GoFishing/Assets/Plugins/System.Data.dll</HintPath>
+ </Reference>
  <Reference Include="UnityEditor.Graphs">
  <HintPath>/Applications/Unity/Unity.app/Contents/Frameworks/Managed/UnityEditor.Graphs.dll</HintPath>
  </Reference>
@@ -99,12 +105,6 @@
  </Reference>
  <Reference Include="UnityEditor.OSXStandalone.Extensions">
  <HintPath>/Applications/Unity/PlaybackEngines/MacStandaloneSupport/UnityEditor.OSXStandalone.Extensions.dll</HintPath>
- </Reference>
- <Reference Include="Mono.Data.Sqlite">
- <HintPath>/Users/fuyiru/GitHub/GoFishing/GoFishing/Assets/Plugins/Mono.Data.Sqlite.dll</HintPath>
- </Reference>
- <Reference Include="System.Data">
- <HintPath>/Users/fuyiru/GitHub/GoFishing/GoFishing/Assets/Plugins/System.Data.dll</HintPath>
  </Reference>
   </ItemGroup>
   <ItemGroup>

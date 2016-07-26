@@ -58,6 +58,7 @@
      <Compile Include="Assets\Script\StartScript.old.cs" />
      <Compile Include="Assets\Script\Timer.cs" />
      <Compile Include="Assets\Script\UI\Grid.cs" />
+     <Compile Include="Assets\Script\UI\Meter.cs" />
      <Compile Include="Assets\Script\UI\Pause.cs" />
      <Compile Include="Assets\Script\UI\PlayerState.cs" />
      <Compile Include="Assets\Script\UI\Resume.cs" />

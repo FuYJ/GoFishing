@@ -29,14 +29,14 @@ public class PlayerState : MonoBehaviour {
 			playerMode = "fishing";
 		else
 			playerMode = "boating";
-		//Debug.Log (playerMode);
 		m_transform.eulerAngles += new Vector3 (0, 180, 0);
-		NotifyObserver ();
+		NotifyPlayerModeChanged ();
 	}
 
-	void NotifyObserver(){
+	void NotifyPlayerModeChanged(){
 		if (PlayerModeChanged != null) {
 			PlayerModeChanged ();
 		}
 	}
+
 }

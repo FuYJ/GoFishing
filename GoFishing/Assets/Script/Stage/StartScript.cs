@@ -14,7 +14,7 @@ public class StartScript : MonoBehaviour
 
     static StartScript()
     {
-        DontDestroyOnLoad(_data);
+		DontDestroyOnLoad(_data);
     }
 
     void OnEnable()
@@ -23,7 +23,8 @@ public class StartScript : MonoBehaviour
 
     void Update()
     {
-#if UNITY_EDITOR
+		#if UNITY_EDITOR
+		Debug.Log (_data.ConnectionStatus);
 
         // Pressed mouse left button call OnXBikeLeftPressed true
         if (Input.GetMouseButtonDown(0))

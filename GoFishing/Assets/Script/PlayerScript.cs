@@ -3,10 +3,15 @@ using System.Collections;
 
 public class PlayerScript : MonoBehaviour {
 
+	/*Constants*/
+	public const string BOATING_STATE = "boating";
+	public const string WATING_FISH_STATE = "wating fish";
+	public const string FISHING_STATE = "fishing";
+	public const float MAX_MOVE_SPEED = 0.8f;
+	public const float MAX_ROD_ANGLE = 30f;
+	public const float MAX_REEL_SPEED = 100f;
 
 	/*XBike parameters setup*/
-	private XBikeEventReceiver.ConnectionStatus connectionStatus = XBikeEventReceiver.ConnectionStatus.Disconnected;
-	private XBikeEventReceiver.SportStatus sportStatus = XBikeEventReceiver.SportStatus.Stop;
 	public float resistanceValue = 1.0f;
 
 	/*Player's gameobjects*/
@@ -18,14 +23,14 @@ public class PlayerScript : MonoBehaviour {
 
 	/*Player parameter*/
 	//private float eyeHeight = 12f;
-	private float speed = 2.5f;
-	private PlayerState m_playerState;
-	private string playerMode = "boating";
+	private float _speed = 2.5f;
+	private PlayerState _playerState;
+	private string _playerMode = "boating";
 
 	/*Rod parameter*/
-	private Vector3 rodDistance = new Vector3(0, 8, 0);
-	private Vector3 rodInitialAngles = new Vector3 (60, 0, 0);
-	private Vector3 rodAngles = new Vector3 (60, 0, 0);
+	private Vector3 _rodDistance = new Vector3(0, 8, 0);
+	private Vector3 _rodInitialAngles = new Vector3 (60, 0, 0);
+	private Vector3 _rodAngles = new Vector3 (60, 0, 0);
 
 	/*Bait parameter*/
 	public GameObject m_bait;
@@ -33,50 +38,77 @@ public class PlayerScript : MonoBehaviour {
 	public Rigidbody m_rodRigidbody;
 	public Rigidbody m_baitRigidbody;
 
+	/*Boating parameters*/
+	private float _moveSpeed = 0f;
+	private float _rotSpeed = 0f;
+
 	/*Fishing parameters*/
-	private bool isRodReady = false;
-	private bool isFishing = false;
-	private float reelingSpeed = 0f;
-	private float timeSlice = 0.1f;
-	private float depth = 0f;
-	private int fishNumber = 0;
-	private int rodPull = 0;
+	private bool _isRodReady = false;
+	private bool _isFishing = false;
+	private float _reelingSpeed = 0f;
+	private float _timeSlice = 0.1f;
+	private float _depth = 0f;
+	private int _cachesNumber = 0;
+	private float _rodPull = 0f;
+	private float _fishEscapeSpeed = 1f;
 
 	/*Button Style*/
-	public Texture2D buttonTexture;
+	public Texture2D m_buttonTexture;
 
 	/*UI control*/
-	public TextMesh meterTitle;
-	public TextMesh meterData;
+	public TextMesh m_meterTitle;
+	public TextMesh m_meterData;
 
-
+	/*Fish gotten event*/
 	public delegate void FishGottenEventHandler();
 	public event FishGottenEventHandler FishGotten;
 
+	/*Meter value changed event*/
+	public delegate void MeterValueChangedEventHandler();
+	public event MeterValueChangedEventHandler MeterValueChanged;
 
-	public int FishNumber{
+	/*Player mode changed event*/
+	public delegate void PlayerModeChangedEventHandler();
+	public event PlayerModeChangedEventHandler PlayerModeChanged;
+
+	public ScenesData _data = StartScript._data;
+
+	/* Player Properties*/
+	public int CachesNumber{
 		get{
-			return fishNumber;
+			return _cachesNumber;
 		}
 	}
 
-	#if UNITY_EDITOR
-	void SendMessageForEachListener(string method, string arg)
-	{
-		XBikeEventReceiver.Listener.ForEach((x) =>
-			{
-				x.SendMessage(method, arg, SendMessageOptions.DontRequireReceiver);
-			});
+	public string PlayerMode{
+		get{
+			return _playerMode;
+		}
 	}
-	#endif
+
+	public float MoveSpeed{
+		get{
+			return _moveSpeed;
+		}
+	}
+
+	public float RodPullAngle{
+		get{
+			return _rodPull;
+		}
+	}
+
+	public float ReelingSpeed{
+		get{
+			return _reelingSpeed;
+		}
+	}
 
 	/// <summary>
 	/// set connection status change event and sport status change event
 	/// </summary>
 	void OnEnable()
 	{
-		XBikeEventReceiver.connectStatusChangeEvent		+= OnXBikeConnectionStatusChange;
-		XBikeEventReceiver.sportStatusChangeEvent		+= OnXBikeSportStatusChange;
 	}
 
 
@@ -89,14 +121,14 @@ public class PlayerScript : MonoBehaviour {
 		m_rodTransform.Translate (10000, 10000, 10000);
 		m_rod.SetActive (false);
 
-		m_playerState = this.GetComponentsInChildren<PlayerState>()[0];
-		m_playerState.PlayerModeChanged += ChangePlayerState;
+		_playerState = this.GetComponentsInChildren<PlayerState>()[0];
+		_playerState.PlayerModeChanged += ChangePlayerState;
 	}
 
 	// Update is called once per frame
 	void Update ()
 	{
-		if (playerMode == "boating") {
+		if (_playerMode == BOATING_STATE) {
 			Move ();
 		} else {
 			Fish ();
@@ -119,102 +151,23 @@ public class PlayerScript : MonoBehaviour {
 
 		GUIStyle buttonStyle = new GUIStyle();
 		#if UNITY_EDITOR
-		buttonStyle.fontSize = 20;
+		buttonStyle.fontSize = 200;
 		buttonStyle.fixedWidth = 120;
 		#elif UNITY_ANDROID
-		buttonStyle.fontSize = 50;
+		buttonStyle.fontSize = 500;
 		buttonStyle.fixedWidth = 300;
 		#endif
 		buttonStyle.alignment = TextAnchor.MiddleCenter;
 		//buttonStyle.wordWrap = true;
 		buttonStyle.stretchWidth = true;
 		buttonStyle.normal.textColor = Color.black;
-		buttonStyle.normal.background = buttonTexture;
+		buttonStyle.normal.background = m_buttonTexture;
 
-		if (connectionStatus ==  XBikeEventReceiver.ConnectionStatus.Disconnected)
-		{
-			if (GUI.Button(new Rect(Screen.width/2 - buttonWidth / 2, Screen.height - 100.0f, buttonWidth, 40.0f), "Connect", buttonStyle))
-			{
-				#if UNITY_EDITOR
-				SendMessageForEachListener("OnXBikeConnectionStatusChange", "1");
-				#elif UNITY_ANDROID
-				XBikeEventReceiver.Connect();
-				#endif
-			}
-		}
-		else if (connectionStatus == XBikeEventReceiver.ConnectionStatus.Connecting)
-		{
-			GUI.Label(new Rect(Screen.width/2 - buttonWidth / 2, Screen.height/2 - 30.0f, buttonWidth, 40.0f), "Connecting", labelStyle);
-			if (GUI.Button(new Rect(Screen.width/2 - buttonWidth / 2, Screen.height - 100.0f, buttonWidth, 40.0f), "Disconnected", buttonStyle))
-			{
-				#if UNITY_EDITOR
-				SendMessageForEachListener("OnXBikeConnectionStatusChange", "0");
-				#elif UNITY_ANDROID
-				XBikeEventReceiver.Disconnect();
-				#endif
-			}
-		}
-		else if (connectionStatus == XBikeEventReceiver.ConnectionStatus.Connected)
-		{
-			GUI.BeginGroup(new Rect(Screen.width/2 - buttonWidth / 2, Screen.height - 200.0f, buttonWidth, 100.0f));
-			GUILayout.BeginVertical();
 
-			if (sportStatus == XBikeEventReceiver.SportStatus.Stop)
-			{
-				if (GUILayout.Button("Start sport", buttonStyle))
-				{
-					StartSport();
-				}
-				if (GUILayout.Button("Disconnected", buttonStyle))
-				{
-					#if UNITY_EDITOR
-					SendMessageForEachListener("OnXBikeConnectionStatusChange", "0");
-					#elif UNITY_ANDROID
-					XBikeEventReceiver.Disconnect();
-					#endif
-				}
-			}
-			/*else if (sportStatus == XBikeEventReceiver.SportStatus.Start)
-		{
-				if (GUILayout.Button("Pause sport", buttonStyle))
-			{
-				PauseSport();
-			}
-				if (GUILayout.Button("Stop sport", buttonStyle))
-			{
-				StopSport();
-			}
-				if (GUILayout.Button("Disconnected", buttonStyle))
-			{
-				#if UNITY_EDITOR
-				SendMessageForEachListener("OnXBikeConnectionStatusChange", "0");
-				#elif UNITY_ANDROID
-				XBikeEventReceiver.Disconnect();
-				#endif
-			}
-		}*/
-			else if (sportStatus == XBikeEventReceiver.SportStatus.Pause)
-			{
-				if (GUILayout.Button("Start sport", buttonStyle))
-				{
-					StartSport();
-				}
-				if (GUILayout.Button("Disconnected", buttonStyle))
-				{
-					#if UNITY_EDITOR
-					SendMessageForEachListener("OnXBikeConnectionStatusChange", "0");
-					#elif UNITY_ANDROID
-					XBikeEventReceiver.Disconnect();
-					#endif
-				}
-			}
-			GUILayout.EndVertical();
-			GUI.EndGroup();
-
-			if (sportStatus == XBikeEventReceiver.SportStatus.Start)
-			{
+			//if (_data.SportStatus == XBikeEventReceiver.SportStatus.Start)
+			//{
 				// Show current sport data
-				GUI.Label(new Rect(30.0f, 30.0f, 200.0f, Screen.height - 30.0f), XBikeEventReceiver.Data.ToString(), buttonStyle);
+				//GUI.Label(new Rect(30.0f, 30.0f, 200.0f, Screen.height - 30.0f), XBikeEventReceiver.Data.ToString(), buttonStyle);
 				// Show left an buuton status
 				//GUI.Label(new Rect(500.0f, 30.0f, 150.0f, 200.0f), "Left Button : " + XBikeEventReceiver.Left.ToString(), style);
 				//GUI.Label(new Rect(500.0f, 60.0f, 150.0f, 200.0f), "Right Button : " + XBikeEventReceiver.Right.ToString(), style);
@@ -244,60 +197,61 @@ public class PlayerScript : MonoBehaviour {
 			{
 				XBikeEventReceiver.SetResistance((int)resistanceValue);
 			}*/
-			}
-		}
+			//}
+		//}
 	}
 
 	void Move ()
 	{
-		float move = 0;
-		float rot = 0;
+		_moveSpeed = 0f;
+		_rotSpeed = 0f;
 		#if UNITY_EDITOR
 		if (Input.GetKey (KeyCode.W)) {
-			move += speed * 5 * Time.deltaTime;
+			_moveSpeed += _speed * 5 * Time.deltaTime;
 		}
 		if (Input.GetKey (KeyCode.S)) {
-			move -= speed * 5 * Time.deltaTime;
+			_moveSpeed -= _speed * 5 * Time.deltaTime;
 		}
 		if (Input.GetKey (KeyCode.D)) {
-			rot += speed * 5 * Time.deltaTime;
+			_rotSpeed += _speed * 5 * Time.deltaTime;
 		}
 		if (Input.GetKey (KeyCode.A)) {
-			rot -= speed * 5 * Time.deltaTime;
+			_rotSpeed -= _speed * 5 * Time.deltaTime;
 		}
 		#elif UNITY_ANDROID
-		if(sportStatus == XBikeEventReceiver.SportStatus.Start){
+		if(_data.SportStatus == XBikeEventReceiver.SportStatus.Start){
 			if((int)XBikeEventReceiver.Data.RPMDirection == 1)
 				move += speed * (float)XBikeEventReceiver.Data.Speed * Time.deltaTime;
 			else
 				move -= speed * (float)XBikeEventReceiver.Data.Speed * Time.deltaTime;
 			//rot += speed * ((((float)XBikeEventReceiver.Data.LeftRightSensor - 180)) / 10) * Time.deltaTime;
-			rot += speed * Time.deltaTime * (Mathf.Abs((int)XBikeEventReceiver.Data.LeftRightSensor - 180) > 5) ? (((int)XBikeEventReceiver.Data.LeftRightSensor > 0) ? 185 - (int)XBikeEventReceiver.Data.LeftRightSensor : 175 - (int)XBikeEventReceiver.Data.LeftRightSensor) : 0;
+			rot += speed * Time.deltaTime * (float)((Mathf.Abs((int)XBikeEventReceiver.Data.LeftRightSensor - 180) > 5) ? (((int)XBikeEventReceiver.Data.LeftRightSensor > 0) ? 185 - (int)XBikeEventReceiver.Data.LeftRightSensor : 175 - (int)XBikeEventReceiver.Data.LeftRightSensor) : 0);
 		}
 		#endif
-		if((move != 0 || rot != 0) && !m_waterFlowSound.isPlaying)
+		if((_moveSpeed != 0f || _rotSpeed != 0f) && !m_waterFlowSound.isPlaying)
 			m_waterFlowSound.Play();
-		move = (move < 8) ? move : 8;
 
-		m_CharacterController.Move (m_transform.TransformDirection (new Vector3 (0, 0, move)));
-		m_transform.eulerAngles += new Vector3 (0, rot, 0);
+		_moveSpeed = (_moveSpeed < MAX_MOVE_SPEED) ? _moveSpeed : MAX_MOVE_SPEED;
+		m_CharacterController.Move (m_transform.TransformDirection (new Vector3 (0, 0, _moveSpeed)));
+		m_transform.eulerAngles += new Vector3 (0, _rotSpeed, 0);
 
 		/*Update meter data*/
-		meterData.text = ((int)Mathf.Abs((move * 10))).ToString();
+		//m_meterData.text = ((int)Mathf.Abs((_moveSpeed * 10))).ToString();
+		NotifyMeterValueChanged ();
 	}
 
 	void Fish ()
 	{
-
 		/*
 		 	Fish would escape according to its weight
 		*/
-		timeSlice -= Time.deltaTime;
-		if (timeSlice <= 0) {
-			timeSlice = 0.1f;
-			if (isFishing) {
-				reelingSpeed -= 5f;
-				depth -= reelingSpeed;
+		_timeSlice -= Time.deltaTime;
+		if (_timeSlice <= 0) {
+			_timeSlice = 0.1f;
+			if (_isFishing) {
+				_fishEscapeSpeed = 25f;
+				_depth += _fishEscapeSpeed;
+				_depth -= _reelingSpeed;
 			}
 		}
 
@@ -305,37 +259,42 @@ public class PlayerScript : MonoBehaviour {
 			If depth <= 0, then player got a fish,
 			else if depth > 30000, then the fish escaped.
 		*/
-		if (depth <= 0 && isFishing) {
-			fishNumber++;
+		if (_depth <= 0 && _isFishing) {
+			_cachesNumber++;
 			ResetRod ();
-			NotifyObserver ();
-		} else if (depth > 30000f && isFishing) {
+			NotifyScoreChanged ();
+		} else if (_depth > 30000f && _isFishing) {
 			ResetRod ();
 		}
 
-		rodAngles.x = 0;
+		_rodAngles.x = 0;
 		#if UNITY_EDITOR
-		if (Input.GetKey (KeyCode.W) && !isFishing) {
-			rodPull++;
-			rodAngles.x = -1;
-			isRodReady = true;
+		if (Input.GetKey (KeyCode.W) && !_isFishing) {
+			if(_rodPull < MAX_ROD_ANGLE){
+				_rodPull++;
+				_rodAngles.x = -2;
+				_isRodReady = true;
+			}
 		}
-		if(Input.GetKey(KeyCode.S) && isRodReady && !isFishing){
-			isRodReady = false;
-			isFishing = true;
-			depth = 300f;
-			Debug.Log(rodPull);
-			m_baitRigidbody.AddForce(new Vector3(0, 500, 6000 + Mathf.Max(Mathf.Min(rodPull, 30), 0) * 300));
+		if(Input.GetKey(KeyCode.S) && _isRodReady && !_isFishing){
+			_isRodReady = false;
+			_isFishing = true;
+			_depth = 300f;
+			_playerMode = FISHING_STATE;
+			_rodPull = Mathf.Max(Mathf.Min(_rodPull, 30), 0);
+			m_baitRigidbody.AddForce(new Vector3(0, 500, 6000 + _rodPull * 300));
+			NotifyPlayerModeChanged ();
 		}
-		if (Input.GetKey (KeyCode.D) && isFishing) {
-			reelingSpeed += 2f;
+		if (Input.GetKey (KeyCode.D) && _isFishing) {
+			_reelingSpeed = 50f;
 		}
-		if (Input.GetKey (KeyCode.A) && isFishing) {
-			reelingSpeed += 2f;
+		if (Input.GetKey (KeyCode.A) && _isFishing) {
+			_reelingSpeed = 50f;
 		}
 		#elif UNITY_ANDROID
 		/*UpDown Sensor Region about 180 ~ 210*/
-		if(sportStatus == XBikeEventReceiver.SportStatus.Start){
+		if(_data.SportStatus == XBikeEventReceiver.SportStatus.Start){
+			/*
 			if(!isRodReady && !isFishing){
 				rodAngles.x = (Mathf.Abs((int)XBikeEventReceiver.Data.UpDownSensor - 180) > 5) ? (((int)XBikeEventReceiver.Data.UpDownSensor > 0) ? 185 - (int)XBikeEventReceiver.Data.UpDownSensor : 175 - (int)XBikeEventReceiver.Data.UpDownSensor) : 0;
 			}
@@ -347,25 +306,46 @@ public class PlayerScript : MonoBehaviour {
 				isFishing = true;
 				depth = 300f;
 				m_baitRigidbody.AddForce(new Vector3(0, 500, 15000));
+				_rodPull = (float)XBikeEventReceiver.Data.UpDownSensor - 180;
+				_playerMode = FISHING_STATE;
+				NotifyPlayerModeChanged ();
 			}
+			*/
+			
+			/*No limit of whether rod is ready*/
+			if(!isFishing){
+				rodAngles.x = (Mathf.Abs((int)XBikeEventReceiver.Data.UpDownSensor - 180) > 5) ? (((int)XBikeEventReceiver.Data.UpDownSensor > 0) ? 185 - (int)XBikeEventReceiver.Data.UpDownSensor : 175 - (int)XBikeEventReceiver.Data.UpDownSensor) : 0;
+			}
+			if((bool)XBikeEventReceiver.Right && !isFishing){
+				isFishing = true;
+				depth = 300f;
+				_rodPull = (float)XBikeEventReceiver.Data.UpDownSensor - 180;
+				m_baitRigidbody.AddForce(new Vector3(0, 500, 6000 + Mathf.Max(Mathf.Min(_rodPull, 30), 0) * 300));
+				_playerMode = FISHING_STATE;
+				NotifyPlayerModeChanged ();
+			}
+
 			if((int)XBikeEventReceiver.Data.RPMDirection == 1 && isFishing)
 				reelingSpeed += (float)XBikeEventReceiver.Data.Speed/10;
 			else if((int)XBikeEventReceiver.Data.RPMDirection == 0 && isFishing)
 				reelingSpeed -= (float)XBikeEventReceiver.Data.Speed/10;
 		}
 		#endif
-		m_rodTransform.eulerAngles += rodAngles;
+		m_rodTransform.eulerAngles += _rodAngles;
+		NotifyMeterValueChanged ();
 	}
 
 	/*Reset rod*/
 	void ResetRod(){
-		isFishing = false;
-		reelingSpeed = 0f;
+		_isFishing = false;
+		_isRodReady = false;
+		_reelingSpeed = 0f;
 		m_rodTransform.rotation = m_transform.rotation;
-		m_rodTransform.eulerAngles += rodInitialAngles;
-		rodPull = 0;
-		depth = 0f;
+		m_rodTransform.eulerAngles += _rodInitialAngles;
+		_rodPull = 0;
+		_depth = 0f;
 		ResetBait ();
+		NotifyPlayerModeChanged ();
 	}
 
 	/*Reset bait*/
@@ -373,35 +353,46 @@ public class PlayerScript : MonoBehaviour {
 		m_baitTransform.localPosition = new Vector3 (0f, 18f, 1.04f);
 		m_baitRigidbody.isKinematic = false;
 		m_baitRigidbody.useGravity = true;
-		HingeJoint baitHingeJoint = m_bait.AddComponent<HingeJoint>();
-		baitHingeJoint.connectedBody = m_rodRigidbody;
-		baitHingeJoint.anchor = new Vector3 (0f, 0.5f, 0f);
-		baitHingeJoint.breakForce = 100f;
-	}
-
-	void ChangePlayerState(){
-		if (playerMode == "boating") {
-			playerMode = "fishing";
-			Vector3 pos = m_transform.position + rodDistance;
-			m_rodTransform.position = pos;
-			m_rodTransform.rotation = m_transform.rotation;
-			m_rodTransform.eulerAngles += rodInitialAngles;
-			isFishing = false;
-			isRodReady = false;
-			reelingSpeed = 0f;
-			m_rod.SetActive (true);
-			m_baitTransform.localPosition = new Vector3 (0f, 18f, 1.04f);
-			//HingeJoint baitHingeJoint = m_bait.AddComponent<HingeJoint>();
-		} else {
-			playerMode = "boating";
-			m_rodTransform.Translate (10000, 10000, 10000);
-			m_rod.SetActive (false);
+		if (!m_bait.GetComponent<HingeJoint> ()) {
+			HingeJoint baitHingeJoint = m_bait.AddComponent<HingeJoint> ();
+			baitHingeJoint.connectedBody = m_rodRigidbody;
+			baitHingeJoint.anchor = new Vector3 (0f, 0.5f, 0f);
+			baitHingeJoint.breakForce = 100f;
 		}
 	}
 
-	void NotifyObserver(){
+	void ChangePlayerState(){
+		if (_playerMode == BOATING_STATE) {
+			_playerMode = WATING_FISH_STATE;
+			Vector3 pos = m_transform.position + _rodDistance;
+			m_rodTransform.position = pos;
+			m_rod.SetActive (true);
+			ResetRod ();
+		} else {
+			_playerMode = BOATING_STATE;
+			m_rodTransform.Translate (10000, 10000, 10000);
+			m_rod.SetActive (false);
+		}
+		NotifyPlayerModeChanged ();
+	}
+
+
+	/*Notify Observers*/
+	void NotifyScoreChanged(){
 		if (FishGotten != null) {
 			FishGotten ();
+		}
+	}
+
+	void NotifyMeterValueChanged(){
+		if (MeterValueChanged != null) {
+			MeterValueChanged ();
+		}
+	}
+
+	void NotifyPlayerModeChanged(){
+		if (PlayerModeChanged != null) {
+			PlayerModeChanged ();
 		}
 	}
 
@@ -420,88 +411,7 @@ public class PlayerScript : MonoBehaviour {
 	private IEnumerator WaitTime(float time)
 	{
 		yield return new WaitForSeconds(time);
-		SendMessageForEachListener("OnXBikeConnectionStatusChange", "2");
+		_data.SendMessageForEachListener("OnXBikeConnectionStatusChange", "2");
 	}
 	#endif
-
-	/// <summary>
-	/// called when the connectivity changes
-	/// </summary>
-	/// <param name='status'>
-	/// "0" = disconnect / "1" = connecting / "2" = connected
-	/// </param>
-	private void OnXBikeConnectionStatusChange(string status)
-	{
-		connectionStatus = (XBikeEventReceiver.ConnectionStatus)int.Parse(status);
-		switch (connectionStatus)
-		{
-		case XBikeEventReceiver.ConnectionStatus.Connecting:
-			{
-				#if UNITY_EDITOR
-				StartCoroutine(WaitTime(3.0f));
-				#endif
-				break;
-			}
-		case XBikeEventReceiver.ConnectionStatus.Connected:
-			{
-				break;
-			}
-		}
-	}
-
-	/// <summary>
-	/// called when there is a change in status
-	/// </summary>
-	/// <param name='status'>
-	/// "0" = stop / "1" = start / "2" = pause
-	/// </param>
-	private void OnXBikeSportStatusChange(string status)
-	{
-		sportStatus = (XBikeEventReceiver.SportStatus)int.Parse(status);
-		switch (sportStatus)
-		{
-		case XBikeEventReceiver.SportStatus.Stop:
-			{
-				sportStatus = XBikeEventReceiver.SportStatus.Stop;
-				break;
-			}
-		case XBikeEventReceiver.SportStatus.Pause:
-			{
-				sportStatus = XBikeEventReceiver.SportStatus.Pause;
-				break;
-			}
-		case XBikeEventReceiver.SportStatus.Start:
-			{
-				sportStatus = XBikeEventReceiver.SportStatus.Start;
-				break;
-			}
-		}
-	}
-
-	private void StopSport()
-	{
-		#if UNITY_EDITOR
-		SendMessageForEachListener("OnXBikeSportStatusChange", "0");
-		#elif UNITY_ANDROID
-		XBikeEventReceiver.StopSport();
-		#endif
-	}
-
-	private void StartSport()
-	{
-		#if UNITY_EDITOR
-		SendMessageForEachListener("OnXBikeSportStatusChange", "1");
-		#elif UNITY_ANDROID
-		XBikeEventReceiver.StartSport();
-		#endif
-	}
-
-	private void PauseSport()
-	{
-		#if UNITY_EDITOR
-		SendMessageForEachListener("OnXBikeSportStatusChange", "2");
-		#elif UNITY_ANDROID
-		XBikeEventReceiver.PauseSport();
-		#endif
-	}
 }

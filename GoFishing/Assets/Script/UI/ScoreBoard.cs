@@ -12,6 +12,6 @@ public class ScoreBoard : MonoBehaviour {
 	}
 
 	void GotFish(){
-		m_cachesNumber.text = m_player.FishNumber.ToString();
+		m_cachesNumber.text = m_player.CachesNumber.ToString();
 	}
 }
