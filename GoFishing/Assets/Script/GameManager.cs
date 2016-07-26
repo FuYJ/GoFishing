@@ -4,20 +4,8 @@ using System.Collections;
 public class GameManager : MonoBehaviour {
 
 	public static GameManager Instance;
-
-	public static XBikeEventReceiver.ConnectionStatus connectionStatus = XBikeEventReceiver.ConnectionStatus.Disconnected;
-	public static XBikeEventReceiver.SportStatus sportStatus = XBikeEventReceiver.SportStatus.Stop;
 	public float resistanceValue = 1.0f;
-
-	#if UNITY_EDITOR
-	public void SendMessageForEachListener(string method, string arg)
-	{
-		XBikeEventReceiver.Listener.ForEach((x) =>
-			{
-				x.SendMessage(method, arg, SendMessageOptions.DontRequireReceiver);
-			});
-	}
-	#endif
+	ScenesData _data = StartScript._data;
 
 	void Awake ()
 	{
@@ -29,8 +17,6 @@ public class GameManager : MonoBehaviour {
 	/// </summary>
 	void OnEnable()
 	{
-		XBikeEventReceiver.connectStatusChangeEvent	+= OnXBikeConnectionStatusChange;
-		XBikeEventReceiver.sportStatusChangeEvent += OnXBikeSportStatusChange;
 	}
 
 	// Use this for initialization
@@ -59,8 +45,8 @@ public class GameManager : MonoBehaviour {
 		/// </param>
 		public void OnXBikeConnectionStatusChange(string status)
 		{
-			connectionStatus = (XBikeEventReceiver.ConnectionStatus)int.Parse(status);
-			switch (connectionStatus)
+			_data.ConnectionStatus = (XBikeEventReceiver.ConnectionStatus)int.Parse(status);
+			switch (_data.ConnectionStatus)
 			{
 			case XBikeEventReceiver.ConnectionStatus.Connecting:
 				{
@@ -84,51 +70,25 @@ public class GameManager : MonoBehaviour {
 		/// </param>
 		public void OnXBikeSportStatusChange(string status)
 		{
-			sportStatus = (XBikeEventReceiver.SportStatus)int.Parse(status);
-			switch (sportStatus)
+			_data.SportStatus = (XBikeEventReceiver.SportStatus)int.Parse(status);
+			switch (_data.SportStatus)
 			{
 			case XBikeEventReceiver.SportStatus.Stop:
 				{
-					sportStatus = XBikeEventReceiver.SportStatus.Stop;
+					_data.SportStatus = XBikeEventReceiver.SportStatus.Stop;
 					break;
 				}
 			case XBikeEventReceiver.SportStatus.Pause:
 				{
-					sportStatus = XBikeEventReceiver.SportStatus.Pause;
+					_data.SportStatus = XBikeEventReceiver.SportStatus.Pause;
 					break;
 				}
 			case XBikeEventReceiver.SportStatus.Start:
 				{
-					sportStatus = XBikeEventReceiver.SportStatus.Start;
+					_data.SportStatus = XBikeEventReceiver.SportStatus.Start;
 					break;
 				}
 			}
 		}
-
-		public void StopSport()
-		{
-			#if UNITY_EDITOR
-			SendMessageForEachListener("OnXBikeSportStatusChange", "0");
-			#elif UNITY_ANDROID
-			XBikeEventReceiver.StopSport();
-			#endif
-		}
-
-		public void StartSport()
-		{
-			#if UNITY_EDITOR
-			SendMessageForEachListener("OnXBikeSportStatusChange", "1");
-			#elif UNITY_ANDROID
-			XBikeEventReceiver.StartSport();
-			#endif
-		}
-
-		public void PauseSport()
-		{
-			#if UNITY_EDITOR
-			SendMessageForEachListener("OnXBikeSportStatusChange", "2");
-			#elif UNITY_ANDROID
-			XBikeEventReceiver.PauseSport();
-			#endif
-		}
+	}
 }
