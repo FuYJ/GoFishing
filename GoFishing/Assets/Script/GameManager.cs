@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour {
 		public IEnumerator WaitTime(float time)
 		{
 			yield return new WaitForSeconds(time);
-			SendMessageForEachListener("OnXBikeConnectionStatusChange", "2");
+			_data.SendMessageForEachListener("OnXBikeConnectionStatusChange", "2");
 		}
 		#endif
 
