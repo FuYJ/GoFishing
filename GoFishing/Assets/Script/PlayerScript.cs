@@ -96,42 +96,6 @@ public class PlayerScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
 	{
-		#if UNITY_EDITOR
-		// Fill fake sport data
-		string dataString = "{" +
-			"\"rpmDirection\":1," +
-			"\"distance\":0," +
-			"\"speed\":0," +
-			"\"watt\":0," +
-			"\"rpm\":150," +
-			"\"resistance\":1," +
-			"\"calories\":0," +
-			"\"leftRightSensor\":186," +
-			"\"upDownSensor\":186," +
-			"\"bpm\":0}";
-		SendMessageForEachListener("OnXBikeDataChange", dataString);
-
-		// Pressed mouse left button call OnXBikeLeftPressed true
-		if( Input.GetMouseButtonDown(0) )
-		{
-			SendMessageForEachListener("OnXBikeLeftPressed", "True");
-		}
-		// Release mouse left button call OnXBikeLeftPressed false
-		else if( Input.GetMouseButtonUp(0) )
-		{
-			SendMessageForEachListener("OnXBikeLeftPressed", "False");
-		}
-		// Pressed mouse right button call OnXBikeRightPressed true
-		if( Input.GetMouseButtonDown(1) )
-		{
-			SendMessageForEachListener("OnXBikeRightPressed", "True");
-		}
-		// Release mouse right button call OnXBikeRightPressed false
-		else if( Input.GetMouseButtonUp(1) )
-		{
-			SendMessageForEachListener("OnXBikeRightPressed", "False");
-		}
-		#endif
 		if (playerMode == "boating") {
 			Move ();
 		} else {
