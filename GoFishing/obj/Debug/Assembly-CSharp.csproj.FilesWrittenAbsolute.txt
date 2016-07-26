@@ -38,3 +38,5 @@
 /Users/fuyiru/GitHub/GoFishing/GoFishing/Temp/bin/Debug/Mono.Cecil.Mdb.dll
 /Users/fuyiru/GitHub/GoFishing/GoFishing/Temp/bin/Debug/Assembly-CSharp.dll.mdb
 /Users/fuyiru/GitHub/GoFishing/GoFishing/Temp/bin/Debug/Assembly-CSharp.dll
+/Users/fuyiru/GitHub/GoFishing/GoFishing/Temp/bin/Debug/Mono.Data.Sqlite.dll
+/Users/fuyiru/GitHub/GoFishing/GoFishing/Temp/bin/Debug/System.Data.dll

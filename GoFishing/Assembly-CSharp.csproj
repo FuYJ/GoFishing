@@ -45,18 +45,22 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Script\Bait.cs" />
+     <Compile Include="Assets\Script\Database.cs" />
      <Compile Include="Assets\Script\GameManager.cs" />
      <Compile Include="Assets\Script\Loading.cs" />
      <Compile Include="Assets\Script\PlayerScript.cs" />
      <Compile Include="Assets\Script\PlayerScript.old.cs" />
      <Compile Include="Assets\Script\ScenesData.cs" />
-     <Compile Include="Assets\Script\Stage1Script.cs" />
-     <Compile Include="Assets\Script\Stage2Script.cs" />
-     <Compile Include="Assets\Script\StartScript.cs" />
+     <Compile Include="Assets\Script\Stage\Stage1Script.cs" />
+     <Compile Include="Assets\Script\Stage\Stage2Script.cs" />
+     <Compile Include="Assets\Script\Stage\StartScript.cs" />
      <Compile Include="Assets\Script\StartScript.old.cs" />
      <Compile Include="Assets\Script\Timer.cs" />
      <Compile Include="Assets\Script\UI\Grid.cs" />
+     <Compile Include="Assets\Script\UI\Pause.cs" />
      <Compile Include="Assets\Script\UI\PlayerState.cs" />
+     <Compile Include="Assets\Script\UI\Resume.cs" />
      <Compile Include="Assets\Script\UI\ScoreBoard.cs" />
      <Compile Include="Assets\Script\XBike\BluetoothDeviceInfo.cs" />
      <Compile Include="Assets\Script\XBike\XBikeEventReceiver.cs" />
@@ -70,6 +74,7 @@
      <None Include="Assets\Plugins\Android\res\values\strings.xml" />
      <None Include="Assets\Plugins\Android\res\values-sw720dp-land\dimens.xml" />
      <None Include="Assets\Standard Assets\Environment\Water (Basic)\Shaders\FXWaterBasic.shader" />
+     <None Include="Assets\Audio\mikaduki\readme.txt" />
      <None Include="Assets\Standard Assets\CrossPlatformInput\CrossPlatformInputGuidelines.txt" />
      <None Include="Assets\Plugins\Android\res\menu\main.xml" />
      <None Include="Assets\Plugins\Android\res\values\styles.xml" />
@@ -86,6 +91,12 @@
  </Reference>
  <Reference Include="JsonFx.Json">
  <HintPath>/Users/fuyiru/GitHub/GoFishing/GoFishing/Assets/Plugins/JsonFx.Json.dll</HintPath>
+ </Reference>
+ <Reference Include="Mono.Data.Sqlite">
+ <HintPath>/Users/fuyiru/GitHub/GoFishing/GoFishing/Assets/Plugins/Mono.Data.Sqlite.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Data">
+ <HintPath>/Users/fuyiru/GitHub/GoFishing/GoFishing/Assets/Plugins/System.Data.dll</HintPath>
  </Reference>
   </ItemGroup>
   <ItemGroup>

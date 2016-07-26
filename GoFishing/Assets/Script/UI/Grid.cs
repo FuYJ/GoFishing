@@ -5,6 +5,7 @@ public class Grid : MonoBehaviour {
 
 	public TextMesh m_gridState;
 	public GameObject m_grid;
+	public AudioSource m_clickSound;
 
 	private bool _isGridOn;
 
@@ -14,6 +15,7 @@ public class Grid : MonoBehaviour {
 	}
 
 	void OnMouseDown () {
+		m_clickSound.Play ();
 		if (_isGridOn) {
 			_isGridOn = false;
 			m_grid.SetActive (false);

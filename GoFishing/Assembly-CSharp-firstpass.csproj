@@ -97,6 +97,7 @@
      <None Include="Assets\Plugins\Android\res\values\strings.xml" />
      <None Include="Assets\Plugins\Android\res\values-sw720dp-land\dimens.xml" />
      <None Include="Assets\Standard Assets\Environment\Water (Basic)\Shaders\FXWaterBasic.shader" />
+     <None Include="Assets\Audio\mikaduki\readme.txt" />
      <None Include="Assets\Standard Assets\CrossPlatformInput\CrossPlatformInputGuidelines.txt" />
      <None Include="Assets\Plugins\Android\res\menu\main.xml" />
      <None Include="Assets\Plugins\Android\res\values\styles.xml" />
@@ -113,6 +114,12 @@
  </Reference>
  <Reference Include="JsonFx.Json">
  <HintPath>/Users/fuyiru/GitHub/GoFishing/GoFishing/Assets/Plugins/JsonFx.Json.dll</HintPath>
+ </Reference>
+ <Reference Include="Mono.Data.Sqlite">
+ <HintPath>/Users/fuyiru/GitHub/GoFishing/GoFishing/Assets/Plugins/Mono.Data.Sqlite.dll</HintPath>
+ </Reference>
+ <Reference Include="System.Data">
+ <HintPath>/Users/fuyiru/GitHub/GoFishing/GoFishing/Assets/Plugins/System.Data.dll</HintPath>
  </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

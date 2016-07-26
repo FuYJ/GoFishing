@@ -14,18 +14,24 @@ public class PlayerScript : MonoBehaviour {
 	public GameObject m_rod;
 	public Transform m_rodTransform;
 	public CharacterController m_CharacterController;
+	public AudioSource m_waterFlowSound;
 
 	/*Player parameter*/
 	//private float eyeHeight = 12f;
-	private float speed = 5f;
+	private float speed = 2.5f;
 	private PlayerState m_playerState;
 	private string playerMode = "boating";
-
 
 	/*Rod parameter*/
 	private Vector3 rodDistance = new Vector3(0, 8, 0);
 	private Vector3 rodInitialAngles = new Vector3 (60, 0, 0);
 	private Vector3 rodAngles = new Vector3 (60, 0, 0);
+
+	/*Bait parameter*/
+	public GameObject m_bait;
+	public Transform m_baitTransform;
+	public Rigidbody m_rodRigidbody;
+	public Rigidbody m_baitRigidbody;
 
 	/*Fishing parameters*/
 	private bool isRodReady = false;
@@ -244,7 +250,7 @@ public class PlayerScript : MonoBehaviour {
 			if (sportStatus == XBikeEventReceiver.SportStatus.Start)
 			{
 				// Show current sport data
-				//GUI.Label(new Rect(30.0f, 30.0f, 200.0f, Screen.height - 30.0f), XBikeEventReceiver.Data.ToString(), buttonStyle);
+				GUI.Label(new Rect(30.0f, 30.0f, 200.0f, Screen.height - 30.0f), XBikeEventReceiver.Data.ToString(), buttonStyle);
 				// Show left an buuton status
 				//GUI.Label(new Rect(500.0f, 30.0f, 150.0f, 200.0f), "Left Button : " + XBikeEventReceiver.Left.ToString(), style);
 				//GUI.Label(new Rect(500.0f, 60.0f, 150.0f, 200.0f), "Right Button : " + XBikeEventReceiver.Right.ToString(), style);
@@ -301,9 +307,12 @@ public class PlayerScript : MonoBehaviour {
 				move += speed * (float)XBikeEventReceiver.Data.Speed * Time.deltaTime;
 			else
 				move -= speed * (float)XBikeEventReceiver.Data.Speed * Time.deltaTime;
-			rot += speed * ((((float)XBikeEventReceiver.Data.LeftRightSensor - 180)) / 10) * Time.deltaTime;
+			//rot += speed * ((((float)XBikeEventReceiver.Data.LeftRightSensor - 180)) / 10) * Time.deltaTime;
+			rot += speed * Time.deltaTime * (Mathf.Abs((int)XBikeEventReceiver.Data.LeftRightSensor - 180) > 5) ? (((int)XBikeEventReceiver.Data.LeftRightSensor > 0) ? 185 - (int)XBikeEventReceiver.Data.LeftRightSensor : 175 - (int)XBikeEventReceiver.Data.LeftRightSensor) : 0;
 		}
 		#endif
+		if((move != 0 || rot != 0) && !m_waterFlowSound.isPlaying)
+			m_waterFlowSound.Play();
 		move = (move < 8) ? move : 8;
 
 		m_CharacterController.Move (m_transform.TransformDirection (new Vector3 (0, 0, move)));
@@ -333,41 +342,26 @@ public class PlayerScript : MonoBehaviour {
 			else if depth > 30000, then the fish escaped.
 		*/
 		if (depth <= 0 && isFishing) {
-			isFishing = false;
-			reelingSpeed = 0f;
-			m_rodTransform.rotation = m_transform.rotation;
-			m_rodTransform.eulerAngles += rodInitialAngles;
 			fishNumber++;
-			rodPull = 0;
-			depth = 0f;
+			ResetRod ();
 			NotifyObserver ();
 		} else if (depth > 30000f && isFishing) {
-			isFishing = false;
-			reelingSpeed = 0f;
-			m_rodTransform.rotation = m_transform.rotation;
-			m_rodTransform.eulerAngles += rodInitialAngles;
-			rodPull = 0;
-			depth = 0f;
+			ResetRod ();
 		}
 
 		rodAngles.x = 0;
 		#if UNITY_EDITOR
-		if (Input.GetKey (KeyCode.W) && !isRodReady && !isFishing) {
+		if (Input.GetKey (KeyCode.W) && !isFishing) {
 			rodPull++;
 			rodAngles.x = -1;
-			//Debug.Log(m_rodTransform.eulerAngles.x);
-			if(m_rodTransform.eulerAngles.x > 270)
-				isRodReady = true;
+			isRodReady = true;
 		}
-		if (Input.GetKey (KeyCode.S) && isRodReady && !isFishing) {
-			rodPull--;
-			rodAngles.x = 1;
-			if(rodPull < 0){
-				isRodReady = false;
-				isFishing = true;
-				depth = 300f;
-				reelingSpeed = 0f;
-			}
+		if(Input.GetKey(KeyCode.S) && isRodReady && !isFishing){
+			isRodReady = false;
+			isFishing = true;
+			depth = 300f;
+			Debug.Log(rodPull);
+			m_baitRigidbody.AddForce(new Vector3(0, 500, 6000 + Mathf.Max(Mathf.Min(rodPull, 30), 0) * 300));
 		}
 		if (Input.GetKey (KeyCode.D) && isFishing) {
 			reelingSpeed += 2f;
@@ -376,17 +370,19 @@ public class PlayerScript : MonoBehaviour {
 			reelingSpeed += 2f;
 		}
 		#elif UNITY_ANDROID
+		/*UpDown Sensor Region about 180 ~ 210*/
 		if(sportStatus == XBikeEventReceiver.SportStatus.Start){
 			if(!isRodReady && !isFishing){
 				rodAngles.x = (Mathf.Abs((int)XBikeEventReceiver.Data.UpDownSensor - 180) > 5) ? (((int)XBikeEventReceiver.Data.UpDownSensor > 0) ? 185 - (int)XBikeEventReceiver.Data.UpDownSensor : 175 - (int)XBikeEventReceiver.Data.UpDownSensor) : 0;
 			}
-			if(m_rodTransform.eulerAngles.x > 270 && !isRodReady && !isFishing){
+			if(m_rodTransform.eulerAngles.x > 180 && !isRodReady && !isFishing){
 				isRodReady = true;
 			}
 			if((bool)XBikeEventReceiver.Right && isRodReady && !isFishing){
 				isRodReady = false;
 				isFishing = true;
 				depth = 300f;
+				m_baitRigidbody.AddForce(new Vector3(0, 500, 15000));
 			}
 			if((int)XBikeEventReceiver.Data.RPMDirection == 1 && isFishing)
 				reelingSpeed += (float)XBikeEventReceiver.Data.Speed/10;
@@ -397,6 +393,28 @@ public class PlayerScript : MonoBehaviour {
 		m_rodTransform.eulerAngles += rodAngles;
 	}
 
+	/*Reset rod*/
+	void ResetRod(){
+		isFishing = false;
+		reelingSpeed = 0f;
+		m_rodTransform.rotation = m_transform.rotation;
+		m_rodTransform.eulerAngles += rodInitialAngles;
+		rodPull = 0;
+		depth = 0f;
+		ResetBait ();
+	}
+
+	/*Reset bait*/
+	void ResetBait(){
+		m_baitTransform.localPosition = new Vector3 (0f, 18f, 1.04f);
+		m_baitRigidbody.isKinematic = false;
+		m_baitRigidbody.useGravity = true;
+		HingeJoint baitHingeJoint = m_bait.AddComponent<HingeJoint>();
+		baitHingeJoint.connectedBody = m_rodRigidbody;
+		baitHingeJoint.anchor = new Vector3 (0f, 0.5f, 0f);
+		baitHingeJoint.breakForce = 100f;
+	}
+
 	void ChangePlayerState(){
 		if (playerMode == "boating") {
 			playerMode = "fishing";
@@ -404,7 +422,12 @@ public class PlayerScript : MonoBehaviour {
 			m_rodTransform.position = pos;
 			m_rodTransform.rotation = m_transform.rotation;
 			m_rodTransform.eulerAngles += rodInitialAngles;
+			isFishing = false;
+			isRodReady = false;
+			reelingSpeed = 0f;
 			m_rod.SetActive (true);
+			m_baitTransform.localPosition = new Vector3 (0f, 18f, 1.04f);
+			//HingeJoint baitHingeJoint = m_bait.AddComponent<HingeJoint>();
 		} else {
 			playerMode = "boating";
 			m_rodTransform.Translate (10000, 10000, 10000);
