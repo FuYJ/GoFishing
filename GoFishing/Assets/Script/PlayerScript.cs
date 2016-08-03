@@ -10,6 +10,7 @@ public class PlayerScript : MonoBehaviour {
 	public const float MAX_MOVE_SPEED = 0.8f;
 	public const float MAX_ROD_ANGLE = 30f;
 	public const float MAX_REEL_SPEED = 100f;
+	public const float MAX_FISH_DEPTH = 2000f;
 
 	/*XBike parameters setup*/
 	public float resistanceValue = 1.0f;
@@ -17,12 +18,16 @@ public class PlayerScript : MonoBehaviour {
 	/*Player's gameobjects*/
 	Transform m_transform;
 	public GameObject m_rod;
+	public GameObject m_fishingProgressBar;
+	public GameObject m_fishHookedAnimation;
 	public Transform m_rodTransform;
 	public CharacterController m_CharacterController;
 	public AudioSource m_waterFlowSound;
+	public AudioSource m_reelingSound;
+	public AudioSource m_successSound;
+	public AudioSource m_failSound;
 
 	/*Player parameter*/
-	//private float eyeHeight = 12f;
 	private float _speed = 2.5f;
 	private PlayerState _playerState;
 	private string _playerMode = "boating";
@@ -45,12 +50,18 @@ public class PlayerScript : MonoBehaviour {
 	/*Fishing parameters*/
 	private bool _isRodReady = false;
 	private bool _isFishing = false;
+	private bool _isBaitInWater = false;
 	private float _reelingSpeed = 0f;
 	private float _timeSlice = 0.1f;
-	private float _depth = 0f;
+	private float _timeSlicePerRound = 5f;
+	private float _fishDepth = 0f;
 	private int _cachesNumber = 0;
 	private float _rodPull = 0f;
 	private float _fishEscapeSpeed = 1f;
+	private float _hookProbability = 0.3f;
+	private float _fishWeight = 0f;
+	private Block[] _blocks;
+	private Bait _bait;
 
 	/*Button Style*/
 	public Texture2D m_buttonTexture;
@@ -70,6 +81,14 @@ public class PlayerScript : MonoBehaviour {
 	/*Player mode changed event*/
 	public delegate void PlayerModeChangedEventHandler();
 	public event PlayerModeChangedEventHandler PlayerModeChanged;
+
+	/*Hook Probability changed event*/
+	public delegate void HookProbabilityChangedEventHandler();
+	public event HookProbabilityChangedEventHandler HookProbabilityChanged;
+
+	/*Fish depth changed event*/
+	public delegate void FishDepthChangedEventHandler();
+	public event FishDepthChangedEventHandler FishDepthChanged;
 
 	public ScenesData _data = StartScript._data;
 
@@ -104,6 +123,24 @@ public class PlayerScript : MonoBehaviour {
 		}
 	}
 
+	public float HookProbability{
+		get{
+			return _hookProbability * 100;
+		}
+	}
+
+	public float FishDepth{
+		get{
+			return _fishDepth;
+		}
+	}
+
+	public float FishWeight{
+		get{
+			return _fishWeight;
+		}
+	}
+
 	/// <summary>
 	/// set connection status change event and sport status change event
 	/// </summary>
@@ -123,6 +160,18 @@ public class PlayerScript : MonoBehaviour {
 
 		_playerState = this.GetComponentsInChildren<PlayerState>()[0];
 		_playerState.PlayerModeChanged += ChangePlayerState;
+
+		GameObject[] _blocksObject;
+		_blocksObject = GameObject.FindGameObjectsWithTag ("Block");
+		_blocks = new Block[_blocksObject.Length];
+		for (int i = 0; i < _blocksObject.Length; i++) {
+			_blocks [i] = _blocksObject [i].GetComponent<Block> ();
+			_blocks [i].HookProbabilityChanged += ChangeHookProbability;
+		}
+
+		_bait = m_bait.GetComponent<Bait> ();
+		_bait.BaitTouchedWater += BaitTouchWater;
+		_bait.BaitTouchedWater += NotifyHookProbabilityChanged;
 	}
 
 	// Update is called once per frame
@@ -141,7 +190,6 @@ public class PlayerScript : MonoBehaviour {
 		GUIStyle labelStyle = new GUIStyle();
 		#if UNITY_EDITOR
 		labelStyle.fontSize = 20;
-		float buttonWidth = 150.0f;
 		#elif UNITY_ANDROID
 		labelStyle.fontSize = 50;
 		float buttonWidth = 300.0f;
@@ -221,11 +269,11 @@ public class PlayerScript : MonoBehaviour {
 		#elif UNITY_ANDROID
 		if(_data.SportStatus == XBikeEventReceiver.SportStatus.Start){
 			if((int)XBikeEventReceiver.Data.RPMDirection == 1)
-				move += speed * (float)XBikeEventReceiver.Data.Speed * Time.deltaTime;
+				_moveSpeed += _speed * (float)XBikeEventReceiver.Data.Speed * Time.deltaTime;
 			else
-				move -= speed * (float)XBikeEventReceiver.Data.Speed * Time.deltaTime;
-			//rot += speed * ((((float)XBikeEventReceiver.Data.LeftRightSensor - 180)) / 10) * Time.deltaTime;
-			rot += speed * Time.deltaTime * (float)((Mathf.Abs((int)XBikeEventReceiver.Data.LeftRightSensor - 180) > 5) ? (((int)XBikeEventReceiver.Data.LeftRightSensor > 0) ? 185 - (int)XBikeEventReceiver.Data.LeftRightSensor : 175 - (int)XBikeEventReceiver.Data.LeftRightSensor) : 0);
+				_moveSpeed -= _speed * (float)XBikeEventReceiver.Data.Speed * Time.deltaTime;
+			//rot += _speed * ((((float)XBikeEventReceiver.Data.LeftRightSensor - 180)) / 10) * Time.deltaTime;
+			_rotSpeed += _speed * Time.deltaTime * (float)((Mathf.Abs((int)XBikeEventReceiver.Data.LeftRightSensor - 180) > 5) ? (((int)XBikeEventReceiver.Data.LeftRightSensor > 0) ? 185 - (int)XBikeEventReceiver.Data.LeftRightSensor : 175 - (int)XBikeEventReceiver.Data.LeftRightSensor) : 0);
 		}
 		#endif
 		if((_moveSpeed != 0f || _rotSpeed != 0f) && !m_waterFlowSound.isPlaying)
@@ -242,115 +290,78 @@ public class PlayerScript : MonoBehaviour {
 
 	void Fish ()
 	{
-		/*
-		 	Fish would escape according to its weight
-		*/
-		_timeSlice -= Time.deltaTime;
-		if (_timeSlice <= 0) {
-			_timeSlice = 0.1f;
-			if (_isFishing) {
-				_fishEscapeSpeed = 25f;
-				_depth += _fishEscapeSpeed;
-				_depth -= _reelingSpeed;
-			}
-		}
-
-		/*
-			If depth <= 0, then player got a fish,
-			else if depth > 30000, then the fish escaped.
-		*/
-		if (_depth <= 0 && _isFishing) {
-			_cachesNumber++;
-			ResetRod ();
-			NotifyScoreChanged ();
-		} else if (_depth > 30000f && _isFishing) {
-			ResetRod ();
-		}
+		HookFish ();
+		UpdateFishDepth ();
+		CheckFishHookedOrEscaped ();
 
 		_rodAngles.x = 0;
 		#if UNITY_EDITOR
-		if (Input.GetKey (KeyCode.W) && !_isFishing) {
+		if (Input.GetKey (KeyCode.W) && !_isRodReady && !_isFishing) {
 			if(_rodPull < MAX_ROD_ANGLE){
 				_rodPull++;
 				_rodAngles.x = -2;
-				_isRodReady = true;
 			}
 		}
-		if(Input.GetKey(KeyCode.S) && _isRodReady && !_isFishing){
-			_isRodReady = false;
-			_isFishing = true;
-			_depth = 300f;
-			_playerMode = FISHING_STATE;
+		if(Input.GetKey(KeyCode.S) && !_isRodReady && !_isFishing){
+			_isRodReady = true;
 			_rodPull = Mathf.Max(Mathf.Min(_rodPull, 30), 0);
 			m_baitRigidbody.AddForce(new Vector3(0, 500, 6000 + _rodPull * 300));
-			NotifyPlayerModeChanged ();
 		}
 		if (Input.GetKey (KeyCode.D) && _isFishing) {
-			_reelingSpeed = 50f;
+			m_reelingSound.Play();
+			_reelingSpeed += 0.5f;
 		}
 		if (Input.GetKey (KeyCode.A) && _isFishing) {
-			_reelingSpeed = 50f;
+			m_reelingSound.Play();
+			_reelingSpeed -= 0.5f;
 		}
 		#elif UNITY_ANDROID
 		/*UpDown Sensor Region about 180 ~ 210*/
 		if(_data.SportStatus == XBikeEventReceiver.SportStatus.Start){
-			/*
-			if(!isRodReady && !isFishing){
-				rodAngles.x = (Mathf.Abs((int)XBikeEventReceiver.Data.UpDownSensor - 180) > 5) ? (((int)XBikeEventReceiver.Data.UpDownSensor > 0) ? 185 - (int)XBikeEventReceiver.Data.UpDownSensor : 175 - (int)XBikeEventReceiver.Data.UpDownSensor) : 0;
+			if(!_isFishing){
+				_rodAngles.x = (Mathf.Abs((int)XBikeEventReceiver.Data.UpDownSensor - 180) > 5) ? (((int)XBikeEventReceiver.Data.UpDownSensor > 0) ? 185 - (int)XBikeEventReceiver.Data.UpDownSensor : 175 - (int)XBikeEventReceiver.Data.UpDownSensor) : 0;
 			}
-			if(m_rodTransform.eulerAngles.x > 180 && !isRodReady && !isFishing){
-				isRodReady = true;
-			}
-			if((bool)XBikeEventReceiver.Right && isRodReady && !isFishing){
-				isRodReady = false;
-				isFishing = true;
-				depth = 300f;
-				m_baitRigidbody.AddForce(new Vector3(0, 500, 15000));
-				_rodPull = (float)XBikeEventReceiver.Data.UpDownSensor - 180;
-				_playerMode = FISHING_STATE;
-				NotifyPlayerModeChanged ();
-			}
-			*/
-			
-			/*No limit of whether rod is ready*/
-			if(!isFishing){
-				rodAngles.x = (Mathf.Abs((int)XBikeEventReceiver.Data.UpDownSensor - 180) > 5) ? (((int)XBikeEventReceiver.Data.UpDownSensor > 0) ? 185 - (int)XBikeEventReceiver.Data.UpDownSensor : 175 - (int)XBikeEventReceiver.Data.UpDownSensor) : 0;
-			}
-			if((bool)XBikeEventReceiver.Right && !isFishing){
-				isFishing = true;
-				depth = 300f;
+			if((bool)XBikeEventReceiver.Right && !_isRodReady && !_isFishing){
+				_isRodReady = true;
 				_rodPull = (float)XBikeEventReceiver.Data.UpDownSensor - 180;
 				m_baitRigidbody.AddForce(new Vector3(0, 500, 6000 + Mathf.Max(Mathf.Min(_rodPull, 30), 0) * 300));
-				_playerMode = FISHING_STATE;
-				NotifyPlayerModeChanged ();
 			}
 
-			if((int)XBikeEventReceiver.Data.RPMDirection == 1 && isFishing)
-				reelingSpeed += (float)XBikeEventReceiver.Data.Speed/10;
-			else if((int)XBikeEventReceiver.Data.RPMDirection == 0 && isFishing)
-				reelingSpeed -= (float)XBikeEventReceiver.Data.Speed/10;
+			if((int)XBikeEventReceiver.Data.RPMDirection == 1 && _isFishing){
+				m_reelingSound.Play();
+				_reelingSpeed += (float)XBikeEventReceiver.Data.Speed/10;
+			}
+			else if((int)XBikeEventReceiver.Data.RPMDirection == 0 && _isFishing){
+				m_reelingSound.Play();
+				_reelingSpeed -= (float)XBikeEventReceiver.Data.Speed/10;
+			}
 		}
 		#endif
 		m_rodTransform.eulerAngles += _rodAngles;
 		NotifyMeterValueChanged ();
+		NotifyFishDepthChanged ();
 	}
 
 	/*Reset rod*/
 	void ResetRod(){
 		_isFishing = false;
+		_isBaitInWater = false;
 		_isRodReady = false;
 		_reelingSpeed = 0f;
+		_hookProbability = 0.3f;
+		m_fishingProgressBar.SetActive (false);
 		m_rodTransform.rotation = m_transform.rotation;
 		m_rodTransform.eulerAngles += _rodInitialAngles;
 		_rodPull = 0;
-		_depth = 0f;
+		_fishDepth = 0f;
 		ResetBait ();
 		NotifyPlayerModeChanged ();
+		NotifyHookProbabilityChanged ();
 	}
 
 	/*Reset bait*/
 	void ResetBait(){
-		m_baitTransform.localPosition = new Vector3 (0f, 18f, 1.04f);
+		m_baitTransform.localPosition = new Vector3 (0f, 18f, 0.56f);
 		m_baitRigidbody.isKinematic = false;
 		m_baitRigidbody.useGravity = true;
 		if (!m_bait.GetComponent<HingeJoint> ()) {
@@ -358,6 +369,72 @@ public class PlayerScript : MonoBehaviour {
 			baitHingeJoint.connectedBody = m_rodRigidbody;
 			baitHingeJoint.anchor = new Vector3 (0f, 0.5f, 0f);
 			baitHingeJoint.breakForce = 100f;
+		}
+	}
+
+	void HookFish(){
+		_timeSlicePerRound -= Time.deltaTime;
+		if (_timeSlicePerRound <= 0) {
+			_timeSlicePerRound = 5f;
+			if (_isBaitInWater && !_isFishing) {
+				if (Random.value <= _hookProbability) {
+					_isRodReady = false;
+					_isFishing = true;
+					_fishDepth = Random.Range (200, 1000);
+					_fishWeight = Random.Range (200, 1599);
+					#if UNITY_ANDROID
+					resistanceValue = _fishWeight / 200;
+					#endif
+					_playerMode = FISHING_STATE;
+					NotifyPlayerModeChanged ();
+					m_fishingProgressBar.SetActive (true);
+				}
+			}
+		}
+	}
+
+	void CheckFishHookedOrEscaped(){
+		/*
+			If depth <= 0, then player got a fish,
+			else if depth > 30000, then the fish escaped.
+		*/
+		if (_fishDepth <= 0 && _isFishing) {
+			_playerMode = WATING_FISH_STATE;
+			_cachesNumber++;
+			ResetRod ();
+			m_successSound.Play ();
+			StartCoroutine ("PlayFishHookedAnimation");
+		} else if (_reelingSpeed > MAX_REEL_SPEED * 0.9 && _isFishing) {
+			_playerMode = WATING_FISH_STATE;
+			ResetRod ();
+			m_failSound.Play ();
+		} else if (_fishDepth > MAX_FISH_DEPTH && _isFishing) {
+			_playerMode = WATING_FISH_STATE;
+			ResetRod ();
+			m_failSound.Play ();
+		}
+	}
+
+	IEnumerator PlayFishHookedAnimation(){
+		m_fishHookedAnimation.SetActive (true);
+		NotifyScoreChanged ();
+		yield return new WaitForSeconds (3);
+		m_fishHookedAnimation.SetActive (false);
+	}
+
+	void UpdateFishDepth(){
+		/*
+		 	Fish would escape 25m per sec.
+		*/
+		_timeSlice -= Time.deltaTime;
+		if (_timeSlice <= 0) {
+			_timeSlice = 0.1f;
+			if (_isFishing) {
+				_fishEscapeSpeed = 25f;
+				_fishDepth += _fishEscapeSpeed;
+				_fishDepth -= _reelingSpeed;
+				NotifyFishDepthChanged ();
+			}
 		}
 	}
 
@@ -376,6 +453,13 @@ public class PlayerScript : MonoBehaviour {
 		NotifyPlayerModeChanged ();
 	}
 
+	void ChangeHookProbability(Block e){
+		_hookProbability = e.m_hookProbability;
+	}
+
+	void BaitTouchWater(){
+		_isBaitInWater = true;
+	}
 
 	/*Notify Observers*/
 	void NotifyScoreChanged(){
@@ -393,6 +477,18 @@ public class PlayerScript : MonoBehaviour {
 	void NotifyPlayerModeChanged(){
 		if (PlayerModeChanged != null) {
 			PlayerModeChanged ();
+		}
+	}
+
+	void NotifyHookProbabilityChanged(){
+		if (HookProbabilityChanged != null) {
+			HookProbabilityChanged ();
+		}
+	}
+
+	void NotifyFishDepthChanged(){
+		if (FishDepthChanged != null) {
+			FishDepthChanged ();
 		}
 	}
 

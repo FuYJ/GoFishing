@@ -7,6 +7,9 @@ public class Bait : MonoBehaviour {
 	public Rigidbody m_baitRigidbody;
 	public AudioSource m_waterCollisionSound;
 
+	public delegate void BaitTouchedWaterEventHandler();
+	public event BaitTouchedWaterEventHandler BaitTouchedWater;
+
 	void Start(){
 		m_baitTransform = this.transform;
 		m_baitRigidbody = this.GetComponent<Rigidbody>();
@@ -18,6 +21,13 @@ public class Bait : MonoBehaviour {
 			m_baitRigidbody.isKinematic = true;
 			m_baitRigidbody.useGravity = false;
 			m_baitRigidbody.velocity = new Vector3 (0, 0, 0);
+			NotifyBaitTouchedWater ();
+		}
+	}
+
+	void NotifyBaitTouchedWater(){
+		if (BaitTouchedWater != null) {
+			BaitTouchedWater ();
 		}
 	}
 }

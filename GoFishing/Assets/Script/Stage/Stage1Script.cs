@@ -41,8 +41,8 @@ public class Stage1Script : MonoBehaviour {
 	void Update () {
 		_time = CountTime (_time);
 		//change to gameover scence if time's up
-		if (_time < 0) {
-
+		if (_time <= 0) {
+			UnityEngine.SceneManagement.SceneManager.LoadScene("StageOverScene", UnityEngine.SceneManagement.LoadSceneMode.Single);
 		}
 		m_timerText.text = ((int)_time).ToString ();
 		_fishTurnaroundTime = CountTime (_fishTurnaroundTime);
@@ -54,7 +54,7 @@ public class Stage1Script : MonoBehaviour {
 				m_fish [i].rotation = Quaternion.Slerp (fromRot, toRot, Time.time * FISH_TURNAROUND_SPEED);
 			}
 		}
-		for (int i = 0; i < FISH_NUMBER; i++) {
+			for (int i = 0; i < FISH_NUMBER; i++) {
 			m_fishCharacterController [i].Move (FISH_SPEED * m_fish[i].forward);
 		}
 	}
