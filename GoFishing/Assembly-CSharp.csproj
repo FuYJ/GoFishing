@@ -57,6 +57,7 @@
      <Compile Include="Assets\Script\Stage\Stage2Script.cs" />
      <Compile Include="Assets\Script\Stage\StartScript.cs" />
      <Compile Include="Assets\Script\StageOver.cs" />
+     <Compile Include="Assets\Script\StageScript.cs" />
      <Compile Include="Assets\Script\StartScript.old.cs" />
      <Compile Include="Assets\Script\Timer.cs" />
      <Compile Include="Assets\Script\UI\Stage\FishHookedAnimation.cs" />
@@ -64,8 +65,10 @@
      <Compile Include="Assets\Script\UI\Stage\Grid.cs" />
      <Compile Include="Assets\Script\UI\Stage\Meter.cs" />
      <Compile Include="Assets\Script\UI\Stage\Pause.cs" />
+     <Compile Include="Assets\Script\UI\Stage\PauseMenu\ExitStage.cs" />
+     <Compile Include="Assets\Script\UI\Stage\PauseMenu\PlayerInformation.cs" />
+     <Compile Include="Assets\Script\UI\Stage\PauseMenu\Resume.cs" />
      <Compile Include="Assets\Script\UI\Stage\PlayerState.cs" />
-     <Compile Include="Assets\Script\UI\Stage\Resume.cs" />
      <Compile Include="Assets\Script\UI\Stage\ScoreBoard.cs" />
      <Compile Include="Assets\Script\UI\StageOver\Replay.cs" />
      <Compile Include="Assets\Script\XBike\BluetoothDeviceInfo.cs" />
