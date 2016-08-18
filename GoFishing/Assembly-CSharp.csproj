@@ -48,6 +48,7 @@
      <Compile Include="Assets\Script\Bait.cs" />
      <Compile Include="Assets\Script\Block.cs" />
      <Compile Include="Assets\Script\Database.cs" />
+     <Compile Include="Assets\Script\DontDestroy.cs" />
      <Compile Include="Assets\Script\GameManager.cs" />
      <Compile Include="Assets\Script\Loading.cs" />
      <Compile Include="Assets\Script\PlayerScript.cs" />

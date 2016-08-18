@@ -90,8 +90,6 @@ public class PlayerScript : MonoBehaviour {
 	public delegate void FishDepthChangedEventHandler();
 	public event FishDepthChangedEventHandler FishDepthChanged;
 
-	public ScenesData _data = StartScript._data;
-
 	/* Player Properties*/
 	public int CachesNumber{
 		get{
@@ -177,76 +175,12 @@ public class PlayerScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
 	{
+		Debug.Log (GameManager.Instance.SportStatus);
 		if (_playerMode == BOATING_STATE) {
 			Move ();
 		} else {
 			Fish ();
 		}
-	}
-
-	void OnGUI ()
-	{
-		//GUI style setting
-		GUIStyle labelStyle = new GUIStyle();
-		#if UNITY_EDITOR
-		labelStyle.fontSize = 20;
-		#elif UNITY_ANDROID
-		labelStyle.fontSize = 50;
-		float buttonWidth = 300.0f;
-		#endif
-		labelStyle.alignment = TextAnchor.MiddleCenter;
-		labelStyle.normal.textColor = Color.white;
-
-		GUIStyle buttonStyle = new GUIStyle();
-		#if UNITY_EDITOR
-		buttonStyle.fontSize = 200;
-		buttonStyle.fixedWidth = 120;
-		#elif UNITY_ANDROID
-		buttonStyle.fontSize = 500;
-		buttonStyle.fixedWidth = 300;
-		#endif
-		buttonStyle.alignment = TextAnchor.MiddleCenter;
-		//buttonStyle.wordWrap = true;
-		buttonStyle.stretchWidth = true;
-		buttonStyle.normal.textColor = Color.black;
-		buttonStyle.normal.background = m_buttonTexture;
-
-
-			//if (_data.SportStatus == XBikeEventReceiver.SportStatus.Start)
-			//{
-				// Show current sport data
-				//GUI.Label(new Rect(30.0f, 30.0f, 200.0f, Screen.height - 30.0f), XBikeEventReceiver.Data.ToString(), buttonStyle);
-				// Show left an buuton status
-				//GUI.Label(new Rect(500.0f, 30.0f, 150.0f, 200.0f), "Left Button : " + XBikeEventReceiver.Left.ToString(), style);
-				//GUI.Label(new Rect(500.0f, 60.0f, 150.0f, 200.0f), "Right Button : " + XBikeEventReceiver.Right.ToString(), style);
-
-				/*if(GUI.Button(new Rect(Screen.width - 200.0f, 30.0f, buttonWidth, 50.0f), playerMode, buttonStyle)){
-					if (playerMode == "划船中") {
-						playerMode = "釣魚中";
-						Vector3 pos = m_transform.position + rodDistance;
-						m_rodTransform.position = pos;
-						m_rodTransform.rotation = m_transform.rotation;
-						m_rodTransform.eulerAngles += rodInitialAngles;
-						m_rod.SetActive (true);
-					} else {
-						playerMode = "划船中";
-						m_rodTransform.Translate (10000, 10000, 10000);
-						m_rod.SetActive (false);
-					}
-			}
-				GUI.Label (new Rect (Screen.width / 2 - 50.0f, 30.0f, 100.0f, 30.0f), "已經釣到了 " + fishNumber.ToString () + " 隻魚", labelStyle);
-				GUI.Label (new Rect (Screen.width / 2 - 50.0f, 90.0f, 100.0f, 30.0f), "魚餌深度 : " + depth.ToString (), labelStyle);
-				GUI.Label (new Rect (Screen.width / 2 - 50.0f, 150.0f, 100.0f, 30.0f), "捲線速度 : " + reelingSpeed.ToString (), labelStyle);
-				GUI.Label (new Rect (Screen.width - 200.0f, 120.0f, 100.0f, 30.0f), "拋線準備 : " + isRodReady.ToString (), labelStyle);
-				GUI.Label (new Rect (Screen.width - 200.0f, 170.0f, 100.0f, 30.0f), "正在釣魚 : " + isFishing.ToString (), labelStyle);
-				resistanceValue = GUI.HorizontalSlider(new Rect(Screen.width/2 - 50.0f, 20.0f, 100.0f, 30.0f), resistanceValue, 1.0f, 8.0f);
-				GUI.Label(new Rect(Screen.width/2 - 50.0f, 60.0f, 100.0f, 30.0f), "Resistance Value : " + ((int)resistanceValue).ToString(), labelStyle);*/
-				/*if (GUI.Button(new Rect(Screen.width/2 - 50.0f, 90.0f, 100.0f, 30.0f), "Set resistance"))
-			{
-				XBikeEventReceiver.SetResistance((int)resistanceValue);
-			}*/
-			//}
-		//}
 	}
 
 	void Move ()
@@ -267,7 +201,7 @@ public class PlayerScript : MonoBehaviour {
 			_rotSpeed -= _speed * 5 * Time.deltaTime;
 		}
 		#elif UNITY_ANDROID
-		if(_data.SportStatus == XBikeEventReceiver.SportStatus.Start){
+		if(GameManager.Instance.SportStatus == XBikeEventReceiver.SportStatus.Start){
 			if((int)XBikeEventReceiver.Data.RPMDirection == 1)
 				_moveSpeed += _speed * (float)XBikeEventReceiver.Data.Speed * Time.deltaTime;
 			else
@@ -317,7 +251,7 @@ public class PlayerScript : MonoBehaviour {
 		}
 		#elif UNITY_ANDROID
 		/*UpDown Sensor Region about 180 ~ 210*/
-		if(_data.SportStatus == XBikeEventReceiver.SportStatus.Start){
+		if(GameManager.Instance.SportStatus == XBikeEventReceiver.SportStatus.Start){
 			if(!_isFishing){
 				_rodAngles.x = (Mathf.Abs((int)XBikeEventReceiver.Data.UpDownSensor - 180) > 5) ? (((int)XBikeEventReceiver.Data.UpDownSensor > 0) ? 185 - (int)XBikeEventReceiver.Data.UpDownSensor : 175 - (int)XBikeEventReceiver.Data.UpDownSensor) : 0;
 			}
@@ -507,7 +441,7 @@ public class PlayerScript : MonoBehaviour {
 	private IEnumerator WaitTime(float time)
 	{
 		yield return new WaitForSeconds(time);
-		_data.SendMessageForEachListener("OnXBikeConnectionStatusChange", "2");
+		GameManager.Instance.SendMessageForEachListener("OnXBikeConnectionStatusChange", "2");
 	}
 	#endif
 }

@@ -14,7 +14,7 @@ public class StartScript : MonoBehaviour
 
     static StartScript()
     {
-		DontDestroyOnLoad(_data);
+		//DontDestroyOnLoad(_data);
     }
 
     void OnEnable()
