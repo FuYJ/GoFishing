@@ -22,7 +22,8 @@ public class StageScript : MonoBehaviour {
 	public GameObject m_basicUI;
 	public GameObject m_playerInformation;
 	public GameObject m_pauseMenu;
-	//public GameObject m_timer;
+	public GameObject m_gameManager;
+	public GameObject m_soundManager;
 	public TextMesh m_timerText;
 	private float _time;
 	private bool _isPause = false;
@@ -35,9 +36,12 @@ public class StageScript : MonoBehaviour {
 
 	// Use this for initialization
 	public void Start () {
-		if(SoundManager.Instance != null)
-			SoundManager.Instance.PlayBackgroundMusic ();
-		
+		if (SoundManager.Instance == null)
+			Instantiate (m_soundManager);
+		if (GameManager.Instance == null)
+			Instantiate (m_gameManager);
+
+		SoundManager.Instance.PlayStageBackgroundMusic ();
 		_time = STAGE_TIME;
 
 		GameObject[] _fish = GameObject.FindGameObjectsWithTag ("Fish");
@@ -85,11 +89,9 @@ public class StageScript : MonoBehaviour {
 		_isPause = value;
 		if (value) {
 			m_basicUI.SetActive (false);
-			//m_timer.SetActive (false);
 			m_pauseMenu.SetActive (true);
 		} else {
 			m_basicUI.SetActive (true);
-			//m_timer.SetActive (true);
 			m_pauseMenu.SetActive (false);
 		}
 	}
@@ -108,6 +110,7 @@ public class StageScript : MonoBehaviour {
 	}
 
 	public virtual void MoveToGameOver(){
+		SoundManager.Instance.StopStageBackgroundMusic ();
 		UnityEngine.SceneManagement.SceneManager.LoadScene("StageOverScene", UnityEngine.SceneManagement.LoadSceneMode.Single);
 	}
 

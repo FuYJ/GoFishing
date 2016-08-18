@@ -165,7 +165,6 @@ public class PlayerScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
 	{
-		Debug.Log (GameManager.Instance.SportStatus);
 		if (_playerMode == BOATING_STATE) {
 			Move ();
 		} else {

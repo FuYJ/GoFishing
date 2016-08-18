@@ -21,14 +21,17 @@ public class SoundManager : MonoBehaviour {
 
 	public static SoundManager Instance = null;
 
-	// Use this for initialization
-	void Start () {
+	void Awake() {
 		if (Instance == null) {
 			Instance = this;
 			DontDestroyOnLoad (gameObject);
 		} else {
 			Destroy (gameObject);
 		}
+	}
+
+	// Use this for initialization
+	void Start () {
 		SetBGMVolume (_BGMVolume);
 		SetSoundVolume (_soundVolume);
 	}
@@ -89,8 +92,13 @@ public class SoundManager : MonoBehaviour {
 			m_reelingSound.Play ();
 	}
 
-	public void PlayBackgroundMusic (){
+	public void PlayStageBackgroundMusic (){
 		if(!m_backgroundMusic.isPlaying)
 			m_backgroundMusic.Play ();
+	}
+
+	public void StopStageBackgroundMusic (){
+		if(m_backgroundMusic.isPlaying)
+			m_backgroundMusic.Stop ();
 	}
 }

@@ -89,7 +89,7 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
-	void Start (){
+	void Awake (){
 		if (Instance == null) {
 			Instance = this;
 			DontDestroyOnLoad (gameObject);
@@ -103,6 +103,9 @@ public class GameManager : MonoBehaviour {
 			_db.createTable (PLAYER_INFO, _playerInfoCol, _playerInfoType);
 		if (!_db.isTableExists (GAME_RECORD))
 			_db.createTable (GAME_RECORD, _gameRecordCol, _gameRecordType);
+	}
+
+	void Start (){
 	}
 
 	#if UNITY_EDITOR

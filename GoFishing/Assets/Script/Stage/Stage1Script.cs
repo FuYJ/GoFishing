@@ -17,6 +17,7 @@ public class Stage1Script : StageScript {
 	}
 
 	public override void MoveToGameOver(){
+		SoundManager.Instance.StopStageBackgroundMusic ();
 		UnityEngine.SceneManagement.SceneManager.LoadScene("StageOverScene", UnityEngine.SceneManagement.LoadSceneMode.Single);
 	}
 }
