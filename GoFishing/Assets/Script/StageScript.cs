@@ -32,8 +32,12 @@ public class StageScript : MonoBehaviour {
 	public TextMesh m_gridState;
 	private bool _isGridOn = false;
 
+
 	// Use this for initialization
 	public void Start () {
+		if(SoundManager.Instance != null)
+			SoundManager.Instance.PlayBackgroundMusic ();
+		
 		_time = STAGE_TIME;
 
 		GameObject[] _fish = GameObject.FindGameObjectsWithTag ("Fish");
@@ -115,5 +119,13 @@ public class StageScript : MonoBehaviour {
 	public void ClosePlayerInformation(){
 		m_playerInformation.SetActive (false);
 		m_basicUI.SetActive (true);
+	}
+
+	public void SetBGMVolume(float value){
+		SoundManager.Instance.SetBGMVolume (value);
+	}
+
+	public void SetSoundVolume(float value){
+		SoundManager.Instance.SetSoundVolume (value);
 	}
 }

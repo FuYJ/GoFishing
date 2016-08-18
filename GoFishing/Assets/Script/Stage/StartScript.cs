@@ -49,7 +49,7 @@ public class StartScript : MonoBehaviour
 #endif
     }
 
-    void OnGUI()
+    /*void OnGUI()
     {
         if (_data.ConnectionStatus == XBikeEventReceiver.ConnectionStatus.Disconnected)
         {
@@ -92,7 +92,7 @@ public class StartScript : MonoBehaviour
             GUILayout.EndVertical();
             GUI.EndGroup();
         }
-    }
+    }*/
 
 #if UNITY_EDITOR
     private IEnumerator WaitTime(float time)

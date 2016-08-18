@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using Mono.Data.Sqlite;
 
 public class GameManager : MonoBehaviour {
 
@@ -9,7 +10,32 @@ public class GameManager : MonoBehaviour {
 	private int _sceneIndex = 0;
 	public float resistanceValue = 1.0f;
 
+	/*Database*/
+	public static string PLAYER_INFO = "PlayerInfo";
+	private string[] _playerInfoCol = {"Name", "Age", "Gender", "Height", "Weight"};
+	private string[] _playerInfoType = {"TEXT", "INTEGER", "INTEGER", "INTEGER", "INTEGER"};
+	public static string GAME_RECORD = "GameRecord";
+	private string[] _gameRecordCol = {"StageIndex", "Caches", "Journey", "Time"};
+	private string[] _gameRecordType = {"INTEGER", "INTEGER", "FLOAT", "INTEGER"};
+	private Database _db;
+	private string _databaseName = "GoFishing.db";
+	private SqliteDataReader _reader;
+
+	/*Player information register*/
+	private string _playerName = "未選擇玩家";
+	private int _playerAge = 0;
+	private int _playerGender = 0; 
+	private int _playerHeight = 0;
+	private int _playerWeight = 0;
+
 	public static GameManager Instance = null;
+
+	public enum Gender
+	{
+		Null,
+		Male,
+		Female
+	}
 
 
 	public int SceneIndex{
@@ -18,6 +44,36 @@ public class GameManager : MonoBehaviour {
 		}
 		set{ 
 			_sceneIndex = value;
+		}
+	}
+
+	public string PlayerName{
+		get{ 
+			return _playerName;
+		}
+	}
+
+	public int PlayerAge{
+		get{ 
+			return _playerAge;
+		}
+	}
+
+	public int PlayerGender{
+		get{ 
+			return _playerGender;
+		}
+	}
+
+	public int PlayerHeight{
+		get{ 
+			return _playerHeight;
+		}
+	}
+
+	public int PlayerWeight{
+		get{ 
+			return _playerWeight;
 		}
 	}
 
@@ -40,6 +96,13 @@ public class GameManager : MonoBehaviour {
 		} else {
 			Destroy (gameObject);
 		}
+
+		_db = new Database (_databaseName);
+		_db.openDatabaseConnecting ();
+		if (!_db.isTableExists (PLAYER_INFO))
+			_db.createTable (PLAYER_INFO, _playerInfoCol, _playerInfoType);
+		if (!_db.isTableExists (GAME_RECORD))
+			_db.createTable (GAME_RECORD, _gameRecordCol, _gameRecordType);
 	}
 
 	#if UNITY_EDITOR

@@ -4,7 +4,6 @@ using System.Collections;
 public class PlayerInformation : MonoBehaviour {
 
 	private StageScript _stageScript;
-	public AudioSource m_clickSound;
 
 	// Use this for initialization
 	void Start () {
@@ -15,7 +14,7 @@ public class PlayerInformation : MonoBehaviour {
 	}
 
 	void OnMouseDown () {
-		m_clickSound.Play ();
+		SoundManager.Instance.PlayClickSound ();
 		_stageScript.ShowPlayerInformation ();
 	}
 }

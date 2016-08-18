@@ -53,7 +53,9 @@
      <Compile Include="Assets\Script\Loading.cs" />
      <Compile Include="Assets\Script\PlayerScript.cs" />
      <Compile Include="Assets\Script\PlayerScript.old.cs" />
+     <Compile Include="Assets\Script\SceneNames.cs" />
      <Compile Include="Assets\Script\ScenesData.cs" />
+     <Compile Include="Assets\Script\SoundManager.cs" />
      <Compile Include="Assets\Script\Stage\Stage1Script.cs" />
      <Compile Include="Assets\Script\Stage\Stage2Script.cs" />
      <Compile Include="Assets\Script\Stage\StartScript.cs" />

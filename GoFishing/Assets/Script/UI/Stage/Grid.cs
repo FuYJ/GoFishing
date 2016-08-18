@@ -4,7 +4,6 @@ using System.Collections;
 public class Grid : MonoBehaviour {
 
 	private StageScript _stageScript;
-	public AudioSource m_clickSound;
 
 	// Use this for initialization
 	void Start () {
@@ -15,7 +14,7 @@ public class Grid : MonoBehaviour {
 	}
 
 	void OnMouseDown () {
-		m_clickSound.Play ();
+		SoundManager.Instance.PlayClickSound ();
 		_stageScript.ToggleGrid ();
 	}
 }

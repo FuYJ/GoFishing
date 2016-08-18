@@ -22,10 +22,6 @@ public class PlayerScript : MonoBehaviour {
 	public GameObject m_fishHookedAnimation;
 	public Transform m_rodTransform;
 	public CharacterController m_CharacterController;
-	public AudioSource m_waterFlowSound;
-	public AudioSource m_reelingSound;
-	public AudioSource m_successSound;
-	public AudioSource m_failSound;
 
 	/*Player parameter*/
 	private float _speed = 2.5f;
@@ -46,6 +42,7 @@ public class PlayerScript : MonoBehaviour {
 	/*Boating parameters*/
 	private float _moveSpeed = 0f;
 	private float _rotSpeed = 0f;
+	private float _journey = 0f;
 
 	/*Fishing parameters*/
 	private bool _isRodReady = false;
@@ -139,13 +136,6 @@ public class PlayerScript : MonoBehaviour {
 		}
 	}
 
-	/// <summary>
-	/// set connection status change event and sport status change event
-	/// </summary>
-	void OnEnable()
-	{
-	}
-
 
 	// Use this for initialization
 	void Start ()
@@ -203,15 +193,15 @@ public class PlayerScript : MonoBehaviour {
 		#elif UNITY_ANDROID
 		if(GameManager.Instance.SportStatus == XBikeEventReceiver.SportStatus.Start){
 			if((int)XBikeEventReceiver.Data.RPMDirection == 1)
-				_moveSpeed += _speed * (float)XBikeEventReceiver.Data.Speed * Time.deltaTime;
+				_moveSpeed += _speed * Mathf.Log((float)XBikeEventReceiver.Data.Speed) * Time.deltaTime;
 			else
-				_moveSpeed -= _speed * (float)XBikeEventReceiver.Data.Speed * Time.deltaTime;
+				_moveSpeed -= _speed * Mathf.Log((float)XBikeEventReceiver.Data.Speed) * Time.deltaTime;
 			//rot += _speed * ((((float)XBikeEventReceiver.Data.LeftRightSensor - 180)) / 10) * Time.deltaTime;
-			_rotSpeed += _speed * Time.deltaTime * (float)((Mathf.Abs((int)XBikeEventReceiver.Data.LeftRightSensor - 180) > 5) ? (((int)XBikeEventReceiver.Data.LeftRightSensor > 0) ? 185 - (int)XBikeEventReceiver.Data.LeftRightSensor : 175 - (int)XBikeEventReceiver.Data.LeftRightSensor) : 0);
+			_rotSpeed -= _speed * Time.deltaTime * (float)((Mathf.Abs((int)XBikeEventReceiver.Data.LeftRightSensor - 180) > 5) ? (((int)XBikeEventReceiver.Data.LeftRightSensor > 0) ? 185 - (int)XBikeEventReceiver.Data.LeftRightSensor : 175 - (int)XBikeEventReceiver.Data.LeftRightSensor) : 0);
 		}
 		#endif
-		if((_moveSpeed != 0f || _rotSpeed != 0f) && !m_waterFlowSound.isPlaying)
-			m_waterFlowSound.Play();
+		if(_moveSpeed != 0f || _rotSpeed != 0f)
+			SoundManager.Instance.PlayWaterFlowSound();
 
 		_moveSpeed = (_moveSpeed < MAX_MOVE_SPEED) ? _moveSpeed : MAX_MOVE_SPEED;
 		m_CharacterController.Move (m_transform.TransformDirection (new Vector3 (0, 0, _moveSpeed)));
@@ -242,11 +232,11 @@ public class PlayerScript : MonoBehaviour {
 			m_baitRigidbody.AddForce(new Vector3(0, 500, 6000 + _rodPull * 300));
 		}
 		if (Input.GetKey (KeyCode.D) && _isFishing) {
-			m_reelingSound.Play();
+			SoundManager.Instance.PlayReelingSound();
 			_reelingSpeed += 0.5f;
 		}
 		if (Input.GetKey (KeyCode.A) && _isFishing) {
-			m_reelingSound.Play();
+			SoundManager.Instance.PlayReelingSound();
 			_reelingSpeed -= 0.5f;
 		}
 		#elif UNITY_ANDROID
@@ -262,12 +252,12 @@ public class PlayerScript : MonoBehaviour {
 			}
 
 			if((int)XBikeEventReceiver.Data.RPMDirection == 1 && _isFishing){
-				m_reelingSound.Play();
-				_reelingSpeed += (float)XBikeEventReceiver.Data.Speed/10;
+				SoundManager.Instance.PlayReelingSound();
+				_reelingSpeed += Mathf.Log((float)XBikeEventReceiver.Data.Speed);
 			}
 			else if((int)XBikeEventReceiver.Data.RPMDirection == 0 && _isFishing){
-				m_reelingSound.Play();
-				_reelingSpeed -= (float)XBikeEventReceiver.Data.Speed/10;
+				SoundManager.Instance.PlayReelingSound();
+				_reelingSpeed -= Mathf.Log((float)XBikeEventReceiver.Data.Speed);
 			}
 		}
 		#endif
@@ -322,9 +312,17 @@ public class PlayerScript : MonoBehaviour {
 					_playerMode = FISHING_STATE;
 					NotifyPlayerModeChanged ();
 					m_fishingProgressBar.SetActive (true);
+					/*隔3秒魚才開始逃*/
+					StartCoroutine ("SetFishEscapeSpeed");
 				}
 			}
 		}
+	}
+
+	IEnumerator SetFishEscapeSpeed(){
+		_fishEscapeSpeed = 0f;
+		yield return new WaitForSeconds (3);
+		_fishEscapeSpeed = 25f;
 	}
 
 	void CheckFishHookedOrEscaped(){
@@ -336,16 +334,16 @@ public class PlayerScript : MonoBehaviour {
 			_playerMode = WATING_FISH_STATE;
 			_cachesNumber++;
 			ResetRod ();
-			m_successSound.Play ();
+			SoundManager.Instance.PlaySuccessSound ();
 			StartCoroutine ("PlayFishHookedAnimation");
 		} else if (_reelingSpeed > MAX_REEL_SPEED * 0.9 && _isFishing) {
 			_playerMode = WATING_FISH_STATE;
 			ResetRod ();
-			m_failSound.Play ();
+			SoundManager.Instance.PlayFailSound ();
 		} else if (_fishDepth > MAX_FISH_DEPTH && _isFishing) {
 			_playerMode = WATING_FISH_STATE;
 			ResetRod ();
-			m_failSound.Play ();
+			SoundManager.Instance.PlayFailSound ();
 		}
 	}
 
@@ -364,7 +362,6 @@ public class PlayerScript : MonoBehaviour {
 		if (_timeSlice <= 0) {
 			_timeSlice = 0.1f;
 			if (_isFishing) {
-				_fishEscapeSpeed = 25f;
 				_fishDepth += _fishEscapeSpeed;
 				_fishDepth -= _reelingSpeed;
 				NotifyFishDepthChanged ();

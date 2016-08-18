@@ -1,12 +1,20 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Script/XBike/XBikeLogger.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Script/SoundManager.cs">
     <Files>
-      <File FileName="Assets/Script/GameManager.cs" Line="26" Column="6" />
-      <File FileName="Assets/Script/PlayerScript.cs" Line="139" Column="4" />
-      <File FileName="Assets/Script/DontDestroy.cs" Line="9" Column="12" />
-      <File FileName="Assets/Script/XBike/XBikeLogger.cs" Line="83" Column="4" />
+      <File FileName="Assets/Script/GameManager.cs" Line="30" Column="1" />
+      <File FileName="Assets/Script/SoundManager.cs" Line="60" Column="3" />
+      <File FileName="Assets/Script/StageScript.cs" Line="41" Column="47" />
+      <File FileName="Assets/Script/SceneNames.cs" Line="16" Column="2" />
+      <File FileName="Assets/Script/Stage/StartScript.cs" Line="95" Column="8" />
     </Files>
+    <Pads>
+      <Pad Id="MonoDevelop.Debugger.WatchPad">
+        <State>
+          <Value>GameManager.Instance.SportStatus</Value>
+        </State>
+      </Pad>
+    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />

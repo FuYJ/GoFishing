@@ -4,7 +4,6 @@ using System.Collections;
 public class PlayerState : MonoBehaviour {
 
 	Transform m_transform;
-	public AudioSource m_clickSound;
 
 	public delegate void PlayerModeChangedEventHandler();
 	public event PlayerModeChangedEventHandler PlayerModeChanged;
@@ -24,7 +23,7 @@ public class PlayerState : MonoBehaviour {
 	}
 	
 	void OnMouseDown () {
-		m_clickSound.Play ();
+		SoundManager.Instance.PlayClickSound ();
 		if (playerMode == "boating")
 			playerMode = "fishing";
 		else
