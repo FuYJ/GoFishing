@@ -1,12 +1,8 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Script/SoundManager.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Script/PlayerScript.cs">
     <Files>
-      <File FileName="Assets/Script/GameManager.cs" Line="30" Column="1" />
-      <File FileName="Assets/Script/SoundManager.cs" Line="60" Column="3" />
-      <File FileName="Assets/Script/StageScript.cs" Line="41" Column="47" />
-      <File FileName="Assets/Script/SceneNames.cs" Line="16" Column="2" />
-      <File FileName="Assets/Script/Stage/StartScript.cs" Line="95" Column="8" />
+      <File FileName="Assets/Script/PlayerScript.cs" Line="255" Column="32" />
     </Files>
     <Pads>
       <Pad Id="MonoDevelop.Debugger.WatchPad">
