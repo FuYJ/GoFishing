@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using Mono.Data.Sqlite;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour {
 
@@ -28,9 +29,36 @@ public class GameManager : MonoBehaviour {
 	public GameObject m_errorMessage;
 
 	public static GameManager Instance = null;
+	public SceneNames m_sceneNames;
+	private int _own;
+	private Status _status;
+	private AsyncOperation _loadOperation;
 
+	private enum Status{
 
+		None,
+		Prepare,
+		Start,
+		Loading,
+		Complete
+	}
 
+	public int SceneOwn{
+		set{ 
+			_own = Mathf.Clamp (value, 0, m_sceneNames.scenes.Length - 1);	
+		}
+	}
+
+	public float Progress{
+		get{
+			if(this._loadOperation == null){
+				return 0;
+			}else{
+				return this._loadOperation.progress;
+			}
+		}
+	}
+		
 	public int SceneIndex{
 		get{ 
 			return _sceneIndex;
@@ -62,6 +90,9 @@ public class GameManager : MonoBehaviour {
 		if (Instance == null) {
 			Instance = this;
 			DontDestroyOnLoad (gameObject);
+
+			if(!string.IsNullOrEmpty(this.m_sceneNames.initScene))
+				SceneManager.LoadScene(this.m_sceneNames.initScene);
 		} else {
 			Destroy (gameObject);
 		}
@@ -80,9 +111,6 @@ public class GameManager : MonoBehaviour {
 			_db.createTable (GAME_RECORD, _gameRecordCol, _gameRecordType);
 
 		//_db.insertInto (PLAYER_INFO, new string[]{ "'1'", "1", "1", "1", "1", "1", "1", "1" });
-	}
-
-	void Start (){
 	}
 
 	#if UNITY_EDITOR
@@ -104,13 +132,13 @@ public class GameManager : MonoBehaviour {
 		XBikeEventReceiver.sportStatusChangeEvent		+= OnXBikeSportStatusChange;
 	}
 
-	void Update (){
+	/*void Update (){
 		if (sportStatus == XBikeEventReceiver.SportStatus.Start && _sceneIndex == 0) {
 			Debug.Log (GameManager.Instance.SportStatus);
 			_sceneIndex = 1;
-			UnityEngine.SceneManagement.SceneManager.LoadScene("Stage1Scene", UnityEngine.SceneManagement.LoadSceneMode.Single);
+			SceneManager.LoadScene("SelectPlayerScene", UnityEngine.SceneManagement.LoadSceneMode.Single);
 		}
-	}
+	}*/
 
 	void OnDisable (){
 		_db.closeDatabaseConnecting ();
@@ -118,6 +146,50 @@ public class GameManager : MonoBehaviour {
 
 	void OnDestroy (){
 		_db.releaseDatabaseAllResources ();
+	}
+
+	public void LoadScene(int index){
+		if (_status != Status.None && _status != Status.Complete)
+			return;
+		if (index >= m_sceneNames.scenes.Length)
+			return;
+		StartCoroutine (AsyncLoadScene (m_sceneNames.scenes [index]));
+	}
+
+	private IEnumerator AsyncLoadScene(SceneNameHolder holder){
+		yield return StartCoroutine (LoadLoadingScene (holder));	
+		yield return StartCoroutine (LoadTargetScene (holder));	
+	}
+
+	private IEnumerator LoadLoadingScene(SceneNameHolder holder){
+		if (string.IsNullOrEmpty (holder.loading))
+			yield break;
+		_status = Status.Prepare;
+		_loadOperation = holder.isAdditiveLoading ? SceneManager.LoadSceneAsync (holder.loading, LoadSceneMode.Additive) : SceneManager.LoadSceneAsync (holder.loading, LoadSceneMode.Single);
+		yield return _loadOperation;
+		while (_status == Status.Prepare) {
+			yield return null;
+		}
+	}
+
+	private IEnumerator LoadTargetScene(SceneNameHolder holder){
+		_status = Status.Loading;
+		if (string.IsNullOrEmpty (holder.own)) {
+			_status = Status.None;
+			yield break;
+		}
+		_loadOperation = SceneManager.LoadSceneAsync (holder.own);
+		yield return _loadOperation;
+
+		_status = Status.Complete;
+	}
+
+	public void StartLoadTargetScene(){
+		_status = Status.Start;
+	}
+		
+	public void LoadOwnScene(){
+		LoadScene (_own);
 	}
 
 	#if UNITY_EDITOR
@@ -182,7 +254,7 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
-	private void StopSport()
+	public void StopSport()
 	{
 		#if UNITY_EDITOR
 		SendMessageForEachListener("OnXBikeSportStatusChange", "0");
@@ -191,7 +263,7 @@ public class GameManager : MonoBehaviour {
 		#endif
 	}
 
-	private void StartSport()
+	public void StartSport()
 	{
 		#if UNITY_EDITOR
 		SendMessageForEachListener("OnXBikeSportStatusChange", "1");
@@ -200,7 +272,7 @@ public class GameManager : MonoBehaviour {
 		#endif
 	}
 
-	private void PauseSport()
+	public void PauseSport()
 	{
 		#if UNITY_EDITOR
 		SendMessageForEachListener("OnXBikeSportStatusChange", "2");
@@ -209,7 +281,7 @@ public class GameManager : MonoBehaviour {
 		#endif
 	}
 
-	public void OnStartButtonClicked(){
+	/*public void OnStartButtonClicked(){
 		#if UNITY_EDITOR
 		SendMessageForEachListener("OnXBikeConnectionStatusChange", "1");
 		StartSport();
@@ -217,7 +289,7 @@ public class GameManager : MonoBehaviour {
 		XBikeEventReceiver.Connect();
 		StartSport();
 		#endif
-	}
+	}*/
 
 	public List<PlayerData> ReadPlayersInformation(){
 		_reader = _db.searchFullTable (PLAYER_INFO);
@@ -257,12 +329,12 @@ public class GameManager : MonoBehaviour {
 	}
 
 	private void InsertPlayerInformation(PlayerData newPlayer){
-		_db.insertInto (PLAYER_INFO, new string[]{ newPlayer.Name, newPlayer.Age.ToString(), ((int)newPlayer.Gender).ToString(), newPlayer.Height.ToString(), newPlayer.Weight.ToString(), ((int)newPlayer.Avatar).ToString(), newPlayer.FootTrainingLevel.ToString(), newPlayer.ArmTrainingLevel.ToString() });
+		_db.insertInto (PLAYER_INFO, new string[]{ "'" + newPlayer.Name + "'", newPlayer.Age.ToString(), ((int)newPlayer.Gender).ToString(), newPlayer.Height.ToString(), newPlayer.Weight.ToString(), ((int)newPlayer.Avatar).ToString(), newPlayer.FootTrainingLevel.ToString(), newPlayer.ArmTrainingLevel.ToString() });
 	}
 
 	public void EditPlayer(string playerName, PlayerData player){
 		_db.updateInto (PLAYER_INFO, _playerInfoCol, new string[] {
-			player.Name,
+			"'" + player.Name + "'",
 			player.Age.ToString (),
 			((int)player.Gender).ToString (),
 			player.Height.ToString (),
@@ -270,13 +342,13 @@ public class GameManager : MonoBehaviour {
 			((int)player.Avatar).ToString (),
 			player.FootTrainingLevel.ToString (),
 			player.ArmTrainingLevel.ToString ()
-		}, "Name", playerName);
-		_db.updateInto (GAME_RECORD, new string[]{ "PlayerName" }, new string[]{ player.Name }, "PlayerName", playerName);
+		}, "Name", "'" + playerName + "'");
+		_db.updateInto (GAME_RECORD, new string[]{ "PlayerName" }, new string[]{ "'" + player.Name + "'" }, "PlayerName", "'" + playerName + "'");
 	}
 
 	public void DeletePlayer(string playerName){
-		_db.deleteAccordData (PLAYER_INFO, new string[]{ "Name" }, new string[]{ playerName });
-		_db.deleteAccordData (GAME_RECORD, new string[]{ "PlayerName" }, new string[]{ playerName });
+		_db.deleteAccordData (PLAYER_INFO, new string[]{ "Name" }, new string[]{ "'" + playerName + "'" });
+		_db.deleteAccordData (GAME_RECORD, new string[]{ "PlayerName" }, new string[]{ "'" + playerName + "'" });
 	}
 
 	public void PrintErrorMessage(string msg){

@@ -8,10 +8,13 @@ public class SelectPlayerScript : MonoBehaviour {
 	public GameObject m_selectPlayerCanvas;
 	public GameObject m_addPlayerCanvas;
 	public GameObject m_selectAvatarCanvas;
+	public GameObject m_downArrowButton;
+	public GameObject m_upArrowButton;
 
 	//Prefabs
-	public GameObject m_gameManager;
+	/*public GameObject m_gameManager;
 	public GameObject m_soundManager;
+	public GameObject m_sceneLoader;*/
 	public GameObject m_playerButton;
 	public GameObject m_addPlayerButton;
 	private GameObject[] _playerButtons;
@@ -40,10 +43,14 @@ public class SelectPlayerScript : MonoBehaviour {
 	}
 
 	void Awake (){
+		/*
 		if (SoundManager.Instance == null)
 			Instantiate (m_soundManager);
 		if (GameManager.Instance == null)
 			Instantiate (m_gameManager);
+		if (SceneLoader.Instance == null)
+			Instantiate (m_sceneLoader);
+			*/
 
 		_playersInfo = GameManager.Instance.ReadPlayersInformation ();
 	}
@@ -63,11 +70,16 @@ public class SelectPlayerScript : MonoBehaviour {
 	}
 
 	private void PrintPlayers(){
+		if (_selectPlayerBoardIndex == 0)
+			m_upArrowButton.SetActive (false);
+		else
+			m_upArrowButton.SetActive (true);
 		if (_selectPlayerBoardIndex < _playersInfo.Count) {
 			ShowSelectPlayerButton (_selectPlayerBoardIndex);
 		} else {
 			_playerButtons[0] = (GameObject)Instantiate (m_addPlayerButton);
 			SetPlayerButtonPosition(0, new Vector3 (-65, 103, 0));
+			m_downArrowButton.SetActive (false);
 			return;
 		}
 		if (_selectPlayerBoardIndex + 1 < _playersInfo.Count) {
@@ -75,13 +87,16 @@ public class SelectPlayerScript : MonoBehaviour {
 		} else {
 			_playerButtons[1] = (GameObject)Instantiate (m_addPlayerButton);
 			SetPlayerButtonPosition(1, new Vector3 (-65, -46, 0));
+			m_downArrowButton.SetActive (false);
 			return;
 		}
 		if (_selectPlayerBoardIndex + 2 < _playersInfo.Count) {
 			ShowSelectPlayerButton (_selectPlayerBoardIndex + 2);
+			m_downArrowButton.SetActive (true);
 		} else {
 			_playerButtons[2] = (GameObject)Instantiate (m_addPlayerButton);
 			SetPlayerButtonPosition(2, new Vector3 (-65, -196, 0));
+			m_downArrowButton.SetActive (false);
 			return;
 		}
 	}
@@ -187,5 +202,15 @@ public class SelectPlayerScript : MonoBehaviour {
 		avatar = index;
 		GameObject.Find ("AddPlayerCanvas/Avatar/RawImage").GetComponent<RawImage> ().texture = GameManager.Instance.GetComponent<Avatars>().Textures[(int)index];
 		m_selectAvatarCanvas.SetActive (false);
+	}
+
+	public void OnDownArrowClick(){
+		_selectPlayerBoardIndex += 3;
+		ShowSelectPlayerBoard();
+	}
+
+	public void OnUpArrowClick(){
+		_selectPlayerBoardIndex -= 3;
+		ShowSelectPlayerBoard();
 	}
 }

@@ -51,6 +51,8 @@
      <Compile Include="Assets\Script\GameManager\DontDestroy.cs" />
      <Compile Include="Assets\Script\GameManager\GameManager.cs" />
      <Compile Include="Assets\Script\GameManager\PlayerData.cs" />
+     <Compile Include="Assets\Script\GameManager\SceneInitializer.cs" />
+     <Compile Include="Assets\Script\GameManager\SceneLoader.cs" />
      <Compile Include="Assets\Script\GameManager\SceneNames.cs" />
      <Compile Include="Assets\Script\GameManager\SoundManager.cs" />
      <Compile Include="Assets\Script\Loading.cs" />

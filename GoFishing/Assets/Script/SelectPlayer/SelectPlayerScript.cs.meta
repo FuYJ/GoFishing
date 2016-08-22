@@ -1,10 +1,28 @@
 fileFormatVersion: 2
 guid: 076e1e6a0b4dc463e959955a575fb369
-timeCreated: 1471589048
+timeCreated: 1471861787
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - m_selectPlayerCanvas: {instanceID: 0}
+  - m_addPlayerCanvas: {instanceID: 0}
+  - m_selectAvatarCanvas: {instanceID: 0}
+  - m_downArrowButton: {instanceID: 0}
+  - m_upArrowButton: {instanceID: 0}
+  - m_gameManager: {fileID: 139298, guid: 8e8ed6090abe74e05a5a8212556671f2, type: 2}
+  - m_soundManager: {fileID: 158662, guid: 06a973fe5afea41b48bb8f607f222e18, type: 2}
+  - m_sceneLoader: {fileID: 178084, guid: 33a04218d62c94c0e944a921b9269db6, type: 2}
+  - m_playerButton: {instanceID: 0}
+  - m_addPlayerButton: {instanceID: 0}
+  - m_name: {instanceID: 0}
+  - m_age: {instanceID: 0}
+  - m_gender: {instanceID: 0}
+  - m_height: {instanceID: 0}
+  - m_weight: {instanceID: 0}
+  - m_footTrainingLevel: {instanceID: 0}
+  - m_armTrainingLevel: {instanceID: 0}
+  - m_finishButton: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
