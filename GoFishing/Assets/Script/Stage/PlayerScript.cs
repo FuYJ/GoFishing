@@ -61,7 +61,7 @@ public class PlayerScript : MonoBehaviour {
 	private Bait _bait;
 
 	/*Button Style*/
-	public Texture2D m_buttonTexture;
+	//public Texture2D m_buttonTexture;
 
 	/*UI control*/
 	public TextMesh m_meterTitle;
@@ -146,7 +146,7 @@ public class PlayerScript : MonoBehaviour {
 		m_rodTransform.Translate (10000, 10000, 10000);
 		m_rod.SetActive (false);
 
-		_playerState = this.GetComponentsInChildren<PlayerState>()[0];
+		_playerState = this.GetComponentInChildren<PlayerState>();
 		_playerState.PlayerModeChanged += ChangePlayerState;
 
 		GameObject[] _blocksObject;
@@ -192,9 +192,9 @@ public class PlayerScript : MonoBehaviour {
 		#elif UNITY_ANDROID
 		if(GameManager.Instance.SportStatus == XBikeEventReceiver.SportStatus.Start){
 			if((int)XBikeEventReceiver.Data.RPMDirection == 1)
-				_moveSpeed += _speed * Mathf.Log((float)XBikeEventReceiver.Data.Speed) * Time.deltaTime;
+				_moveSpeed += _speed * (float)XBikeEventReceiver.Data.Speed / 5 * Time.deltaTime;
 			else
-				_moveSpeed -= _speed * Mathf.Log((float)XBikeEventReceiver.Data.Speed) * Time.deltaTime;
+				_moveSpeed -= _speed * (float)XBikeEventReceiver.Data.Speed / 5 * Time.deltaTime;
 			//rot += _speed * ((((float)XBikeEventReceiver.Data.LeftRightSensor - 180)) / 10) * Time.deltaTime;
 			_rotSpeed -= _speed * Time.deltaTime * (float)((Mathf.Abs((int)XBikeEventReceiver.Data.LeftRightSensor - 180) > 5) ? (((int)XBikeEventReceiver.Data.LeftRightSensor > 0) ? 185 - (int)XBikeEventReceiver.Data.LeftRightSensor : 175 - (int)XBikeEventReceiver.Data.LeftRightSensor) : 0);
 		}
@@ -204,7 +204,8 @@ public class PlayerScript : MonoBehaviour {
 
 		_moveSpeed = (_moveSpeed < MAX_MOVE_SPEED) ? _moveSpeed : MAX_MOVE_SPEED;
 		m_CharacterController.Move (m_transform.TransformDirection (new Vector3 (0, 0, _moveSpeed)));
-		m_transform.eulerAngles += new Vector3 (0, _rotSpeed, 0);
+		//m_transform.eulerAngles += new Vector3 (0, _rotSpeed, 0);
+		m_transform.Rotate(Vector3.up, _rotSpeed);
 
 		/*Update meter data*/
 		//m_meterData.text = ((int)Mathf.Abs((_moveSpeed * 10))).ToString();
@@ -252,11 +253,11 @@ public class PlayerScript : MonoBehaviour {
 
 			if((int)XBikeEventReceiver.Data.RPMDirection == 1 && _isFishing){
 				SoundManager.Instance.PlayReelingSound();
-				_reelingSpeed += Mathf.Log((float)XBikeEventReceiver.Data.Speed);
+				_reelingSpeed += (float)XBikeEventReceiver.Data.Speed / 10;
 			}
 			else if((int)XBikeEventReceiver.Data.RPMDirection == 0 && _isFishing){
 				SoundManager.Instance.PlayReelingSound();
-				_reelingSpeed -= Mathf.Log((float)XBikeEventReceiver.Data.Speed);
+				_reelingSpeed -= (float)XBikeEventReceiver.Data.Speed / 10;
 			}
 		}
 		#endif
@@ -321,7 +322,7 @@ public class PlayerScript : MonoBehaviour {
 	IEnumerator SetFishEscapeSpeed(){
 		_fishEscapeSpeed = 0f;
 		yield return new WaitForSeconds (3);
-		_fishEscapeSpeed = 25f;
+		_fishEscapeSpeed = 10f;
 	}
 
 	void CheckFishHookedOrEscaped(){

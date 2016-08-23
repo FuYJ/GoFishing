@@ -12,9 +12,9 @@ public class SelectPlayerScript : MonoBehaviour {
 	public GameObject m_upArrowButton;
 
 	//Prefabs
-	/*public GameObject m_gameManager;
+	public GameObject m_gameManager;
 	public GameObject m_soundManager;
-	public GameObject m_sceneLoader;*/
+	public GameObject m_sceneLoader;
 	public GameObject m_playerButton;
 	public GameObject m_addPlayerButton;
 	private GameObject[] _playerButtons;
@@ -43,14 +43,13 @@ public class SelectPlayerScript : MonoBehaviour {
 	}
 
 	void Awake (){
-		/*
+		
 		if (SoundManager.Instance == null)
 			Instantiate (m_soundManager);
 		if (GameManager.Instance == null)
 			Instantiate (m_gameManager);
 		if (SceneLoader.Instance == null)
 			Instantiate (m_sceneLoader);
-			*/
 
 		_playersInfo = GameManager.Instance.ReadPlayersInformation ();
 	}
@@ -212,5 +211,10 @@ public class SelectPlayerScript : MonoBehaviour {
 	public void OnUpArrowClick(){
 		_selectPlayerBoardIndex -= 3;
 		ShowSelectPlayerBoard();
+	}
+
+	public void LoadNextScene(int playerIndex){
+		GameManager.Instance.Player = _playersInfo [playerIndex];
+		SceneLoader.Instance.LoadLevel (SceneLoader.Scenes.Stage1);
 	}
 }

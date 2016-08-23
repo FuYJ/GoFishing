@@ -5,7 +5,6 @@ public class Bait : MonoBehaviour {
 
 	public Transform m_baitTransform;
 	public Rigidbody m_baitRigidbody;
-	public AudioSource m_waterCollisionSound;
 
 	public delegate void BaitTouchedWaterEventHandler();
 	public event BaitTouchedWaterEventHandler BaitTouchedWater;
@@ -16,7 +15,7 @@ public class Bait : MonoBehaviour {
 	}
 
 	void OnTriggerEnter(Collider other){
-		m_waterCollisionSound.Play ();
+		SoundManager.Instance.PlayWaterCollisionSound ();
 		if (other.CompareTag ("Water")) {
 			m_baitRigidbody.isKinematic = true;
 			m_baitRigidbody.useGravity = false;

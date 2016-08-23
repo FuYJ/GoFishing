@@ -13,7 +13,8 @@ public class SceneLoader : MonoBehaviour {
 		Menu,
 		SelectStage,
 		Stage1,
-		Stage2
+		Stage2,
+		StageOver
 	}
 
 	void Awake(){

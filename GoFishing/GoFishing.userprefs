@@ -1,19 +1,20 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Script/PlayerScript.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Script/GameManager/GameManager.cs">
     <Files>
-      <File FileName="Assets/Script/PlayerScript.cs" Line="255" Column="32" />
+      <File FileName="Assets/Script/GameManager/GameManager.cs" Line="346" Column="138" />
+      <File FileName="Assets/Script/GameManager/SceneNames.cs" Line="9" Column="2" />
+      <File FileName="Assets/Script/GameManager/SceneInitializer.cs" Line="9" Column="3" />
+      <File FileName="Assets/Script/Start/StartScript.cs" Line="12" Column="51" />
+      <File FileName="Assets/Script/GameManager/SceneLoader.cs" Line="23" Column="1" />
+      <File FileName="Assets/Script/SelectPlayer/SelectPlayerScript.cs" Line="18" Column="35" />
+      <File FileName="Assets/Script/GameManager/PlayerData.cs" Line="35" Column="1" />
     </Files>
-    <Pads>
-      <Pad Id="MonoDevelop.Debugger.WatchPad">
-        <State>
-          <Value>GameManager.Instance.SportStatus</Value>
-        </State>
-      </Pad>
-    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="/Users/fuyiru/GitHub/GoFishing/GoFishing/Assets/Script/SelectPlayer/SelectPlayerScript.cs" line="164" column="59" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

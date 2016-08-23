@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class StageScript : MonoBehaviour {
 
@@ -19,12 +20,13 @@ public class StageScript : MonoBehaviour {
 	private float _fishTurnaroundTime;
 
 	/*Pause*/
-	public GameObject m_basicUI;
-	public GameObject m_playerInformation;
-	public GameObject m_pauseMenu;
+	private GameObject _basicUI;
+	private GameObject _playerInformation;
+	private GameObject _pauseMenu;
 	public GameObject m_gameManager;
 	public GameObject m_soundManager;
-	public TextMesh m_timerText;
+	public GameObject m_sceneLoader;
+	private TextMesh _timerText;
 	private float _time;
 	private bool _isPause = false;
 
@@ -40,6 +42,13 @@ public class StageScript : MonoBehaviour {
 			Instantiate (m_soundManager);
 		if (GameManager.Instance == null)
 			Instantiate (m_gameManager);
+		if (SceneLoader.Instance == null)
+			Instantiate (m_sceneLoader);
+
+		_basicUI = GameObject.Find ("PlayerGroup/BasicUI");
+		_pauseMenu = GameObject.Find ("PlayerGroup/PauseUI/PauseMenu");
+		_timerText = GameObject.Find ("PlayerGroup/BasicUI/Timer/TimerText").GetComponent<TextMesh> ();
+		_playerInformation = GameObject.Find ("PlayerGroup/PauseUI/PlayerInformation");
 
 		SoundManager.Instance.PlayStageBackgroundMusic ();
 		_time = STAGE_TIME;
@@ -63,7 +72,7 @@ public class StageScript : MonoBehaviour {
 			_time = CountTime (_time);
 		if (_time <= 0)
 			MoveToGameOver ();
-		m_timerText.text = ((int)_time).ToString ();
+		_timerText.text = ((int)_time).ToString ();
 
 		/*Control fishes' moving*/
 		_fishTurnaroundTime = CountTime (_fishTurnaroundTime);
@@ -88,11 +97,11 @@ public class StageScript : MonoBehaviour {
 	public void SetPause(bool value){
 		_isPause = value;
 		if (value) {
-			m_basicUI.SetActive (false);
-			m_pauseMenu.SetActive (true);
+			_basicUI.SetActive (false);
+			_pauseMenu.SetActive (true);
 		} else {
-			m_basicUI.SetActive (true);
-			m_pauseMenu.SetActive (false);
+			_basicUI.SetActive (true);
+			_pauseMenu.SetActive (false);
 		}
 	}
 
@@ -115,13 +124,18 @@ public class StageScript : MonoBehaviour {
 	}
 
 	public void ShowPlayerInformation(){
-		m_playerInformation.SetActive (true);
-		m_pauseMenu.SetActive (false);
+		_playerInformation.SetActive (true);
+		_pauseMenu.SetActive (false);
+		LoadPlayerInformation ();
+	}
+
+	private void LoadPlayerInformation(){
+		GameObject.Find ("Canvas/PlayerName/PlayerNameText").GetComponent<Text> ().text = GameManager.Instance.Player.Name;
 	}
 
 	public void ClosePlayerInformation(){
-		m_playerInformation.SetActive (false);
-		m_basicUI.SetActive (true);
+		_playerInformation.SetActive (false);
+		_basicUI.SetActive (true);
 	}
 
 	public void SetBGMVolume(float value){

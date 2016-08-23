@@ -35,7 +35,6 @@ public class GameManager : MonoBehaviour {
 	private AsyncOperation _loadOperation;
 
 	private enum Status{
-
 		None,
 		Prepare,
 		Start,
@@ -72,6 +71,9 @@ public class GameManager : MonoBehaviour {
 		get{ 
 			return _player;
 		}
+		set{ 
+			_player = value;
+		}
 	}
 
 	public XBikeEventReceiver.ConnectionStatus ConnectionStatus{
@@ -101,8 +103,8 @@ public class GameManager : MonoBehaviour {
 		_db.openDatabaseConnecting ();
 
 		//Test
-		_db.deleteTable (PLAYER_INFO);
-		_db.deleteTable (GAME_RECORD);
+		//_db.deleteTable (PLAYER_INFO);
+		//_db.deleteTable (GAME_RECORD);
 		//Test
 
 		if (!_db.isTableExists (PLAYER_INFO))
