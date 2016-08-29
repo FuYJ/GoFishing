@@ -5,20 +5,29 @@ using UnityEngine.UI;
 public class StartScript : MonoBehaviour
 {
 
-	private Text _buttonText;
+	private Button _startbutton;
+	private Text _startButtonText;
 
 	void Start () {
-		_buttonText = GameObject.Find ("Canvas/StartButton/Text").GetComponent<Text> ();
+		_startbutton = GameObject.Find ("Canvas/StartButton").GetComponent<Button>();
+		_startButtonText = GameObject.Find ("Canvas/StartButton/Text").GetComponent<Text> ();
 	}
 
 	void Update () {
-		if (GameManager.Instance.ConnectionStatus == XBikeEventReceiver.ConnectionStatus.Disconnected)
-			_buttonText.text = "開始連線";
-		else if (GameManager.Instance.ConnectionStatus == XBikeEventReceiver.ConnectionStatus.Connected)
-			_buttonText.text = "開始遊戲";
+		if (GameManager.Instance.ConnectionStatus == XBikeEventReceiver.ConnectionStatus.Disconnected) {
+			_startbutton.interactable = true;
+			_startButtonText.text = "開始連線";
+		} else if (GameManager.Instance.ConnectionStatus == XBikeEventReceiver.ConnectionStatus.Connecting) {
+			_startbutton.interactable = false;
+			_startButtonText.text = "連線中...";
+		} else if (GameManager.Instance.ConnectionStatus == XBikeEventReceiver.ConnectionStatus.Connected) {
+			_startbutton.interactable = true;
+			_startButtonText.text = "開始遊戲";
+		}
 	}
 
 	public void OnStartButtonClick(){
+		SoundManager.Instance.PlayClickSound ();
 		if (GameManager.Instance.ConnectionStatus == XBikeEventReceiver.ConnectionStatus.Disconnected) {
 			#if UNITY_EDITOR
 			GameManager.Instance.SendMessageForEachListener ("OnXBikeConnectionStatusChange", "1");

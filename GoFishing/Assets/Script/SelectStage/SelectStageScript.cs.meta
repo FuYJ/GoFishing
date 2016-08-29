@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 894c20bdb167f4cad9f3870ab7b2e158
+timeCreated: 1472433600
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - m_selectStageModeBoard: {instanceID: 0}
+  - m_selectStageBoard: {instanceID: 0}
+  - m_gameManager: {fileID: 139298, guid: 8e8ed6090abe74e05a5a8212556671f2, type: 2}
+  - m_soundManager: {fileID: 158662, guid: 06a973fe5afea41b48bb8f607f222e18, type: 2}
+  - m_sceneLoader: {fileID: 178084, guid: 33a04218d62c94c0e944a921b9269db6, type: 2}
+  - m_stageButton: {fileID: 155742, guid: 32258b56de76c42ffb5e085e564f6204, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

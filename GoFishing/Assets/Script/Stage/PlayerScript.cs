@@ -422,23 +422,4 @@ public class PlayerScript : MonoBehaviour {
 			FishDepthChanged ();
 		}
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-	#if UNITY_EDITOR
-	private IEnumerator WaitTime(float time)
-	{
-		yield return new WaitForSeconds(time);
-		GameManager.Instance.SendMessageForEachListener("OnXBikeConnectionStatusChange", "2");
-	}
-	#endif
 }

@@ -215,6 +215,6 @@ public class SelectPlayerScript : MonoBehaviour {
 
 	public void LoadNextScene(int playerIndex){
 		GameManager.Instance.Player = _playersInfo [playerIndex];
-		SceneLoader.Instance.LoadLevel (SceneLoader.Scenes.Stage1);
+		SceneLoader.Instance.LoadLevel (SceneLoader.Scenes.SelectStage);
 	}
 }

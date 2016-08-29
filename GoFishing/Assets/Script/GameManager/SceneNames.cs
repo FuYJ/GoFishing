@@ -13,6 +13,12 @@ public class SceneNameHolder {
 
 	public string own;
 	public string loading;
+	public string stageName = "";
 	public bool isAdditiveLoading;
+	public bool isTimeLimitStage;
+	public bool isFreeStage;
+	public int handStarNumber = 0;
+	public int footStarNumber = 0;
+	public int coordinationStarNumber = 0;
 }
 
