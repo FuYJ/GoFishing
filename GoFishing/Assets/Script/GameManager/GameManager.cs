@@ -23,16 +23,17 @@ public class GameManager : MonoBehaviour {
 	private string _databaseName = "GoFishing.db";
 	private SqliteDataReader _reader;
 
-	/*Player information register*/
+	/*Information register*/
 	private PlayerData _player;
-
-	public GameObject m_errorMessage;
-
-	public static GameManager Instance = null;
+	private DailyRecord _dailyRecord;
 	public SceneNames m_sceneNames;
 	private int _own;
 	private Status _status;
 	private AsyncOperation _loadOperation;
+
+	public GameObject m_errorMessage;
+
+	public static GameManager Instance = null;
 
 	private enum Status{
 		None,
@@ -64,6 +65,15 @@ public class GameManager : MonoBehaviour {
 		}
 		set{ 
 			_sceneIndex = value;
+		}
+	}
+
+	public DailyRecord DailyRecord{
+		get{ 
+			return _dailyRecord;
+		}
+		set{ 
+			_dailyRecord = value;
 		}
 	}
 

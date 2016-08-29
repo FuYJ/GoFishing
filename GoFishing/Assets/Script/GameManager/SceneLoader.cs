@@ -4,10 +4,10 @@ using System.Collections;
 public class SceneLoader : MonoBehaviour {
 
 	static public SceneLoader Instance;
-	private Scenes own;
+	private Scenes _own;
+	private Scenes _nowStage = 0;
 
 	public enum Scenes{
-
 		Start = 0,
 		SelectPlayer,
 		Menu,
@@ -17,11 +17,17 @@ public class SceneLoader : MonoBehaviour {
 		StageOver
 	}
 
+	public Scenes NowStage{
+		get{ 
+			return _nowStage;
+		}
+	}
+
 	void Awake(){
 		if (Instance == null) {
 			Instance = this;
 			DontDestroyOnLoad (gameObject);
-			GameManager.Instance.SceneOwn = (int)own;
+			GameManager.Instance.SceneOwn = (int)_own;
 		} else {
 			Destroy (gameObject);
 		}
@@ -29,5 +35,9 @@ public class SceneLoader : MonoBehaviour {
 
 	public void LoadLevel(Scenes target){
 		GameManager.Instance.LoadScene((int)target);
+	}
+
+	public void SetNowStage(Scenes nowStage){
+		_nowStage = nowStage;
 	}
 }
