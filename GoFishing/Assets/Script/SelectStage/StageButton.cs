@@ -15,6 +15,7 @@ public class StageButton : MonoBehaviour {
 	}
 
 	public void OnStageButtonClick(){
+		SoundManager.Instance.PlayClickSound ();
 		SelectStageScript _selectStageScript;
 		_selectStageScript = GameObject.Find ("SelectStageScript").GetComponent<SelectStageScript>();
 		_selectStageScript.LoadStage (_stageIndex);

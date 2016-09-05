@@ -28,6 +28,7 @@ public class SelectAvatars : MonoBehaviour {
 	}
 
 	public void OnDefaultButtonClick () {
+		SoundManager.Instance.PlayClickSound ();
 		SelectPlayerScript _selectPlayerScript;
 		_selectPlayerScript = GameObject.Find ("SelectPlayerScript").GetComponent<SelectPlayerScript>();
 		_selectPlayerScript.SelectAvatar (PlayerData.Avatars.Default);
@@ -35,42 +36,49 @@ public class SelectAvatars : MonoBehaviour {
 	}
 
 	public void OnFemale1ButtonClick () {
+		SoundManager.Instance.PlayClickSound ();
 		SelectPlayerScript _selectPlayerScript;
 		_selectPlayerScript = GameObject.Find ("SelectPlayerScript").GetComponent<SelectPlayerScript>();
 		_selectPlayerScript.SelectAvatar (PlayerData.Avatars.Female1);
 	}
 
 	public void OnFemale2ButtonClick () {
+		SoundManager.Instance.PlayClickSound ();
 		SelectPlayerScript _selectPlayerScript;
 		_selectPlayerScript = GameObject.Find ("SelectPlayerScript").GetComponent<SelectPlayerScript>();
 		_selectPlayerScript.SelectAvatar (PlayerData.Avatars.Female2);
 	}
 
 	public void OnFemale3ButtonClick () {
+		SoundManager.Instance.PlayClickSound ();
 		SelectPlayerScript _selectPlayerScript;
 		_selectPlayerScript = GameObject.Find ("SelectPlayerScript").GetComponent<SelectPlayerScript>();
 		_selectPlayerScript.SelectAvatar (PlayerData.Avatars.Female3);
 	}
 
 	public void OnMale1ButtonClick () {
+		SoundManager.Instance.PlayClickSound ();
 		SelectPlayerScript _selectPlayerScript;
 		_selectPlayerScript = GameObject.Find ("SelectPlayerScript").GetComponent<SelectPlayerScript>();
 		_selectPlayerScript.SelectAvatar (PlayerData.Avatars.Male1);
 	}
 
 	public void OnMale2ButtonClick () {
+		SoundManager.Instance.PlayClickSound ();
 		SelectPlayerScript _selectPlayerScript;
 		_selectPlayerScript = GameObject.Find ("SelectPlayerScript").GetComponent<SelectPlayerScript>();
 		_selectPlayerScript.SelectAvatar (PlayerData.Avatars.Male2);
 	}
 
 	public void OnMale3ButtonClick () {
+		SoundManager.Instance.PlayClickSound ();
 		SelectPlayerScript _selectPlayerScript;
 		_selectPlayerScript = GameObject.Find ("SelectPlayerScript").GetComponent<SelectPlayerScript>();
 		_selectPlayerScript.SelectAvatar (PlayerData.Avatars.Male3);
 	}
 
 	public void OnCustomButtonClick () {
+		SoundManager.Instance.PlayClickSound ();
 		SelectPlayerScript _selectPlayerScript;
 		_selectPlayerScript = GameObject.Find ("SelectPlayerScript").GetComponent<SelectPlayerScript>();
 		_selectPlayerScript.SelectAvatar (PlayerData.Avatars.Custom);

@@ -204,11 +204,13 @@ public class SelectPlayerScript : MonoBehaviour {
 	}
 
 	public void OnDownArrowClick(){
+		SoundManager.Instance.PlayClickSound ();
 		_selectPlayerBoardIndex += 3;
 		ShowSelectPlayerBoard();
 	}
 
 	public void OnUpArrowClick(){
+		SoundManager.Instance.PlayClickSound ();
 		_selectPlayerBoardIndex -= 3;
 		ShowSelectPlayerBoard();
 	}

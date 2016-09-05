@@ -36,19 +36,23 @@ public class StageScript : MonoBehaviour {
 	private bool _isGridOn = false;
 
 
-	// Use this for initialization
-	public void Start () {
+	public void Awake () {
 		if (SoundManager.Instance == null)
 			Instantiate (m_soundManager);
 		if (GameManager.Instance == null)
 			Instantiate (m_gameManager);
 		if (SceneLoader.Instance == null)
 			Instantiate (m_sceneLoader);
+	}
 
+	// Use this for initialization
+	public void Start () {
 		_basicUI = GameObject.Find ("PlayerGroup/BasicUI");
 		_pauseMenu = GameObject.Find ("PlayerGroup/PauseUI/PauseMenu");
 		_timerText = GameObject.Find ("PlayerGroup/BasicUI/Timer/TimerText").GetComponent<TextMesh> ();
 		_playerInformation = GameObject.Find ("PlayerGroup/PauseUI/PlayerInformation");
+
+		ShowBasicUI ();
 
 		SoundManager.Instance.PlayStageBackgroundMusic ();
 		_time = STAGE_TIME;
@@ -89,6 +93,12 @@ public class StageScript : MonoBehaviour {
 		}
 	}
 
+	private void ShowBasicUI(){
+		_basicUI.SetActive (true);
+		_pauseMenu.SetActive (false);
+		_playerInformation.SetActive (false);
+	}
+
 	protected virtual float CountTime (float time){
 		time -= Time.deltaTime;
 		return time;
@@ -120,7 +130,10 @@ public class StageScript : MonoBehaviour {
 
 	public virtual void MoveToGameOver(){
 		SoundManager.Instance.StopStageBackgroundMusic ();
-		UnityEngine.SceneManagement.SceneManager.LoadScene("StageOverScene", UnityEngine.SceneManagement.LoadSceneMode.Single);
+		PlayerScript _playerScript = GameObject.Find ("PlayerGroup").GetComponent<PlayerScript> ();
+		GameManager.Instance.InsertRecord (_playerScript.CachesNumber, _playerScript.Journey, (int)(STAGE_TIME - _time));
+
+		SceneLoader.Instance.LoadLevel (SceneLoader.Scenes.StageOver);
 	}
 
 	public void ShowPlayerInformation(){
@@ -130,7 +143,12 @@ public class StageScript : MonoBehaviour {
 	}
 
 	private void LoadPlayerInformation(){
-		GameObject.Find ("Canvas/PlayerName/PlayerNameText").GetComponent<Text> ().text = GameManager.Instance.Player.Name;
+		GameObject playerName = GameObject.Find ("Canvas/PlayerName/PlayerNameText");
+		playerName.GetComponent<Text> ().text = GameManager.Instance.Player.Name;
+		GameObject dailyCaches = GameObject.Find ("Canvas/PlayerDailyCaches/PlayerDailyCachesText");
+		dailyCaches.GetComponent<Text> ().text = GameManager.Instance.DailyRecord.Caches.ToString();
+		GameObject dailyJourney = GameObject.Find ("Canvas/PlayerDailyJourney/PlayerDailyJourneyText");
+		dailyJourney.GetComponent<Text> ().text = GameManager.Instance.DailyRecord.Journey.ToString();
 	}
 
 	public void ClosePlayerInformation(){

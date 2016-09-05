@@ -42,7 +42,8 @@ public class PlayerScript : MonoBehaviour {
 	/*Boating parameters*/
 	private float _moveSpeed = 0f;
 	private float _rotSpeed = 0f;
-	private float _journey = 0f;
+	private double _journey = 0;
+	private double _lastDistance = 0;
 
 	/*Fishing parameters*/
 	private bool _isRodReady = false;
@@ -91,6 +92,12 @@ public class PlayerScript : MonoBehaviour {
 	public int CachesNumber{
 		get{
 			return _cachesNumber;
+		}
+	}
+
+	public double Journey{
+		get{ 
+			return _journey;
 		}
 	}
 
@@ -209,7 +216,13 @@ public class PlayerScript : MonoBehaviour {
 
 		/*Update meter data*/
 		//m_meterData.text = ((int)Mathf.Abs((_moveSpeed * 10))).ToString();
+		UpdateJourney ();
 		NotifyMeterValueChanged ();
+	}
+
+	void UpdateJourney () {
+		_journey += XBikeEventReceiver.Data.Distance - _lastDistance;
+		_lastDistance = XBikeEventReceiver.Data.Distance;
 	}
 
 	void Fish ()
@@ -378,6 +391,7 @@ public class PlayerScript : MonoBehaviour {
 			ResetRod ();
 		} else {
 			_playerMode = BOATING_STATE;
+			_lastDistance = XBikeEventReceiver.Data.Distance;
 			m_rodTransform.Translate (10000, 10000, 10000);
 			m_rod.SetActive (false);
 		}

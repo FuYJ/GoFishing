@@ -4,6 +4,7 @@ using System.Collections;
 public class Stage1Script : StageScript {
 	// Use this for initialization
 	void Awake () {
+		base.Awake ();
 		STAGE_TIME = 180;
 		TERRAIN_SIZE = 200f;
 	}
@@ -14,10 +15,5 @@ public class Stage1Script : StageScript {
 
 	void Update(){
 		base.Update ();
-	}
-
-	public override void MoveToGameOver(){
-		SoundManager.Instance.StopStageBackgroundMusic ();
-		SceneLoader.Instance.LoadLevel(SceneLoader.Scenes.StageOver);
 	}
 }

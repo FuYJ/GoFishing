@@ -25,7 +25,8 @@ public class GameManager : MonoBehaviour {
 
 	/*Information register*/
 	private PlayerData _player;
-	private DailyRecord _dailyRecord;
+	private GameRecord _dailyRecord;
+	private GameRecord _stageRecordRigister;
 	public SceneNames m_sceneNames;
 	private int _own;
 	private Status _status;
@@ -68,12 +69,21 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
-	public DailyRecord DailyRecord{
+	public GameRecord DailyRecord{
 		get{ 
 			return _dailyRecord;
 		}
 		set{ 
 			_dailyRecord = value;
+		}
+	}
+
+	public GameRecord StageRecordRegister{
+		get{ 
+			return _stageRecordRigister;
+		}
+		set{ 
+			_stageRecordRigister = value;
 		}
 	}
 
@@ -123,6 +133,9 @@ public class GameManager : MonoBehaviour {
 			_db.createTable (GAME_RECORD, _gameRecordCol, _gameRecordType);
 
 		//_db.insertInto (PLAYER_INFO, new string[]{ "'1'", "1", "1", "1", "1", "1", "1", "1" });
+
+		_dailyRecord = new GameRecord ();
+		_stageRecordRigister = new GameRecord ();
 	}
 
 	#if UNITY_EDITOR
@@ -373,5 +386,21 @@ public class GameManager : MonoBehaviour {
 		GameObject newMsg = Instantiate (m_errorMessage);
 		yield return new WaitForSeconds (3);
 		Destroy (newMsg);
+	}
+
+	public void InsertRecord(int caches, double journey, int time){
+		_stageRecordRigister.Caches = caches;
+		_stageRecordRigister.Journey = journey;
+		_stageRecordRigister.Time = time;
+		_dailyRecord.Caches += caches;
+		_dailyRecord.Journey += journey;
+		_dailyRecord.Time += time;
+		_db.insertInto (GAME_RECORD, new string[] {
+			_player.Name,
+			((int)SceneLoader.Instance.NowStage).ToString(),
+			caches.ToString(),
+			journey.ToString(),
+			time.ToString()
+		});
 	}
 }

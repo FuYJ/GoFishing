@@ -40,6 +40,7 @@ public class SelectStageScript : MonoBehaviour {
 	}
 
 	public void ShowFreeModeStages(){
+		SoundManager.Instance.PlayClickSound ();
 		m_selectStageModeBoard.SetActive (false);
 		m_selectStageBoard.SetActive (true);
 		int scenesNumber = GameManager.Instance.m_sceneNames.scenes.Length;
@@ -51,6 +52,7 @@ public class SelectStageScript : MonoBehaviour {
 	}
 
 	public void ShowTimeLimitModeStages(){
+		SoundManager.Instance.PlayClickSound ();
 		m_selectStageModeBoard.SetActive (false);
 		m_selectStageBoard.SetActive (true);
 		int scenesNumber = GameManager.Instance.m_sceneNames.scenes.Length;
