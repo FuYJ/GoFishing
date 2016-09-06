@@ -262,24 +262,35 @@ public class PlayerScript : MonoBehaviour {
 		}
 		#elif UNITY_ANDROID
 		/*UpDown Sensor Region about 180 ~ 210*/
-		if(GameManager.Instance.SportStatus == XBikeEventReceiver.SportStatus.Start){
-			if(!_isFishing){
-				_rodAngles.x = (Mathf.Abs((int)XBikeEventReceiver.Data.UpDownSensor - 180) > 5) ? (((int)XBikeEventReceiver.Data.UpDownSensor > 0) ? 185 - (int)XBikeEventReceiver.Data.UpDownSensor : 175 - (int)XBikeEventReceiver.Data.UpDownSensor) : 0;
+		if(!_isFishing){
+			//_rodAngles.x = (Mathf.Abs((int)XBikeEventReceiver.Data.UpDownSensor - 180) > 5) ? (((int)XBikeEventReceiver.Data.UpDownSensor > 0) ? 185 - (int)XBikeEventReceiver.Data.UpDownSensor : 175 - (int)XBikeEventReceiver.Data.UpDownSensor) : 0;
+			_rodAngles.x = ((int)XBikeEventReceiver.Data.UpDownSensor - 180 > 10) ? -2 : ((int)XBikeEventReceiver.Data.UpDownSensor - 180 < -10) ? 2 : 0;
+			if(_rodAngles.x > 0){
+				if(_rodPull <= 0)
+					_rodAngles.x  = 0;
+				else
+					_rodPull--;
 			}
-			if((bool)XBikeEventReceiver.Right && !_isRodReady && !_isFishing){
-				_isRodReady = true;
-				_rodPull = (float)XBikeEventReceiver.Data.UpDownSensor - 180;
-				m_baitRigidbody.AddForce(new Vector3(0, 500, 6000 + Mathf.Max(Mathf.Min(_rodPull, 30), 0) * 300));
+			else if(_rodAngles.x < 0){
+				if(_rodPull >= 30)
+					_rodAngles.x = 0;
+				else
+					_rodPull++;
 			}
+		}
+		if((bool)XBikeEventReceiver.Right && !_isRodReady && !_isFishing){
+			_isRodReady = true;
+			//_rodPull = (float)XBikeEventReceiver.Data.UpDownSensor - 180;
+			m_baitRigidbody.AddForce(new Vector3(0, 500, 6000 + Mathf.Max(Mathf.Min(_rodPull, 30), 0) * 300));
+		}
 
-			if((int)XBikeEventReceiver.Data.RPMDirection == 1 && _isFishing){
-				SoundManager.Instance.PlayReelingSound();
-				_reelingSpeed += (float)XBikeEventReceiver.Data.Speed / 10;
-			}
-			else if((int)XBikeEventReceiver.Data.RPMDirection == 0 && _isFishing){
-				SoundManager.Instance.PlayReelingSound();
-				_reelingSpeed -= (float)XBikeEventReceiver.Data.Speed / 10;
-			}
+		if((int)XBikeEventReceiver.Data.RPMDirection == 1 && _isFishing){
+			SoundManager.Instance.PlayReelingSound();
+			_reelingSpeed += (float)XBikeEventReceiver.Data.Speed / 10;
+		}
+		else if((int)XBikeEventReceiver.Data.RPMDirection == 0 && _isFishing){
+			SoundManager.Instance.PlayReelingSound();
+			_reelingSpeed -= (float)XBikeEventReceiver.Data.Speed / 10;
 		}
 		#endif
 		m_rodTransform.eulerAngles += _rodAngles;

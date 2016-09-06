@@ -22,8 +22,8 @@ public class StageOverScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		m_caches.text = "漁獲量: " + GameManager.Instance.StageRecordRegister.Caches;
-		m_journey.text = "航行距離: " + GameManager.Instance.StageRecordRegister.Journey;
-		m_time.text = "遊戲時間: " + GameManager.Instance.StageRecordRegister.Duration;
+		m_journey.text = "航行距離: " + GameManager.Instance.StageRecordRegister.Journey + " km";
+		m_time.text = "遊戲時間: " + GameManager.Instance.StageRecordRegister.Duration + " s";
 		SoundManager.Instance.PlayBackgroundMusic2 ();
 	}
 
