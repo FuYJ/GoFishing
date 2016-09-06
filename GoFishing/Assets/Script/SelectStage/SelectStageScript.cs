@@ -18,6 +18,14 @@ public class SelectStageScript : MonoBehaviour {
 	public Texture m_starUnfilled;
 	public Texture m_starFilled;
 
+	private States _nowState = States.SelectStageMode;
+
+	private enum States
+	{
+		SelectStageMode,
+		SelectStage
+	}
+
 	// Use this for initialization
 	void Awake () {
 		if (SoundManager.Instance == null)
@@ -35,11 +43,13 @@ public class SelectStageScript : MonoBehaviour {
 	}
 		
 	public void ShowSelectStageModeBoard (){
+		_nowState = States.SelectStageMode;
 		m_selectStageModeBoard.SetActive (true);
 		m_selectStageBoard.SetActive (false);
 	}
 
 	public void ShowFreeModeStages(){
+		_nowState = States.SelectStage;
 		SoundManager.Instance.PlayClickSound ();
 		m_selectStageModeBoard.SetActive (false);
 		m_selectStageBoard.SetActive (true);
@@ -52,6 +62,7 @@ public class SelectStageScript : MonoBehaviour {
 	}
 
 	public void ShowTimeLimitModeStages(){
+		_nowState = States.SelectStage;
 		SoundManager.Instance.PlayClickSound ();
 		m_selectStageModeBoard.SetActive (false);
 		m_selectStageBoard.SetActive (true);
@@ -103,5 +114,14 @@ public class SelectStageScript : MonoBehaviour {
 	public void LoadStage(SceneLoader.Scenes stageIndex){
 		SceneLoader.Instance.SetNowStage (stageIndex);
 		SceneLoader.Instance.LoadLevel (stageIndex);
+	}
+
+	public void OnBackButtonClick(){
+		SoundManager.Instance.PlayClickSound ();
+		if (_nowState == States.SelectStageMode) {
+			SceneLoader.Instance.LoadLevel (SceneLoader.Scenes.Menu);
+		} else {
+			ShowSelectStageModeBoard ();
+		}
 	}
 }

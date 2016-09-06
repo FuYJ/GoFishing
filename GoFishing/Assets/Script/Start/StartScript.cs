@@ -5,10 +5,25 @@ using UnityEngine.UI;
 public class StartScript : MonoBehaviour
 {
 
+	public GameObject m_gameManager;
+	public GameObject m_soundManager;
+	public GameObject m_sceneLoader;
+
 	private Button _startbutton;
 	private Text _startButtonText;
 
+	void Awake (){
+
+		if (SoundManager.Instance == null)
+			Instantiate (m_soundManager);
+		if (GameManager.Instance == null)
+			Instantiate (m_gameManager);
+		if (SceneLoader.Instance == null)
+			Instantiate (m_sceneLoader);
+	}
+
 	void Start () {
+		SoundManager.Instance.PlayBackgroundMusic2 ();
 		_startbutton = GameObject.Find ("Canvas/StartButton").GetComponent<Button>();
 		_startButtonText = GameObject.Find ("Canvas/StartButton/Text").GetComponent<Text> ();
 	}
@@ -24,6 +39,10 @@ public class StartScript : MonoBehaviour
 			_startbutton.interactable = true;
 			_startButtonText.text = "開始遊戲";
 		}
+	}
+
+	void OnDestroy(){
+		//SoundManager.Instance.StopBackgroundMusic2 ();
 	}
 
 	public void OnStartButtonClick(){

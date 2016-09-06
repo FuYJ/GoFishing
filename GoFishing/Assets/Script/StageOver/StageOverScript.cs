@@ -10,17 +10,21 @@ public class StageOverScript : MonoBehaviour {
 	public TextMesh m_journey;
 	public TextMesh m_time;
 
-	// Use this for initialization
-	void Start () {
+	void Awake () {
 		if (SoundManager.Instance == null)
 			Instantiate (m_soundManager);
 		if (GameManager.Instance == null)
 			Instantiate (m_gameManager);
 		if (SceneLoader.Instance == null)
 			Instantiate (m_sceneLoader);
+	}
+
+	// Use this for initialization
+	void Start () {
 		m_caches.text = "漁獲量: " + GameManager.Instance.StageRecordRegister.Caches;
 		m_journey.text = "航行距離: " + GameManager.Instance.StageRecordRegister.Journey;
-		m_time.text = "遊戲時間: " + GameManager.Instance.StageRecordRegister.Time;
+		m_time.text = "遊戲時間: " + GameManager.Instance.StageRecordRegister.Duration;
+		SoundManager.Instance.PlayBackgroundMusic2 ();
 	}
 
 

@@ -17,4 +17,9 @@ public class PlayerInformation : MonoBehaviour {
 		SoundManager.Instance.PlayClickSound ();
 		_stageScript.ShowPlayerInformation ();
 	}
+
+	public void OnBackButtonClick () {
+		SoundManager.Instance.PlayClickSound ();
+		_stageScript.SetPause (false);
+	}
 }

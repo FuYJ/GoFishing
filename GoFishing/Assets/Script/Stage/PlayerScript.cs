@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class PlayerScript : MonoBehaviour {
@@ -67,6 +68,8 @@ public class PlayerScript : MonoBehaviour {
 	/*UI control*/
 	public TextMesh m_meterTitle;
 	public TextMesh m_meterData;
+	public Scrollbar m_BGMScrollbar;
+	public Scrollbar m_soundScrollbar;
 
 	/*Fish gotten event*/
 	public delegate void FishGottenEventHandler();
@@ -147,6 +150,9 @@ public class PlayerScript : MonoBehaviour {
 	// Use this for initialization
 	void Start ()
 	{
+		m_BGMScrollbar.value = SoundManager.Instance.BGMVolume;
+		m_soundScrollbar.value = SoundManager.Instance.SoundVolume;
+
 		m_transform = this.transform;
 		m_rodTransform.rotation = m_transform.rotation;
 
@@ -167,15 +173,19 @@ public class PlayerScript : MonoBehaviour {
 		_bait = m_bait.GetComponent<Bait> ();
 		_bait.BaitTouchedWater += BaitTouchWater;
 		_bait.BaitTouchedWater += NotifyHookProbabilityChanged;
+
+		_lastDistance = XBikeEventReceiver.Data.Distance;
 	}
 
 	// Update is called once per frame
 	void Update ()
 	{
-		if (_playerMode == BOATING_STATE) {
-			Move ();
-		} else {
-			Fish ();
+		if (GameManager.Instance.SportStatus == XBikeEventReceiver.SportStatus.Start) {
+			if (_playerMode == BOATING_STATE) {
+				Move ();
+			} else {
+				Fish ();
+			}
 		}
 	}
 
@@ -197,14 +207,12 @@ public class PlayerScript : MonoBehaviour {
 			_rotSpeed -= _speed * 5 * Time.deltaTime;
 		}
 		#elif UNITY_ANDROID
-		if(GameManager.Instance.SportStatus == XBikeEventReceiver.SportStatus.Start){
-			if((int)XBikeEventReceiver.Data.RPMDirection == 1)
-				_moveSpeed += _speed * (float)XBikeEventReceiver.Data.Speed / 5 * Time.deltaTime;
-			else
-				_moveSpeed -= _speed * (float)XBikeEventReceiver.Data.Speed / 5 * Time.deltaTime;
-			//rot += _speed * ((((float)XBikeEventReceiver.Data.LeftRightSensor - 180)) / 10) * Time.deltaTime;
-			_rotSpeed -= _speed * Time.deltaTime * (float)((Mathf.Abs((int)XBikeEventReceiver.Data.LeftRightSensor - 180) > 5) ? (((int)XBikeEventReceiver.Data.LeftRightSensor > 0) ? 185 - (int)XBikeEventReceiver.Data.LeftRightSensor : 175 - (int)XBikeEventReceiver.Data.LeftRightSensor) : 0);
-		}
+		if((int)XBikeEventReceiver.Data.RPMDirection == 1)
+			_moveSpeed += _speed * (float)XBikeEventReceiver.Data.Speed / 5 * Time.deltaTime;
+		else
+			_moveSpeed -= _speed * (float)XBikeEventReceiver.Data.Speed / 5 * Time.deltaTime;
+		//rot += _speed * ((((float)XBikeEventReceiver.Data.LeftRightSensor - 180)) / 10) * Time.deltaTime;
+		_rotSpeed -= _speed * Time.deltaTime * (float)((Mathf.Abs((int)XBikeEventReceiver.Data.LeftRightSensor - 180) > 5) ? (((int)XBikeEventReceiver.Data.LeftRightSensor > 0) ? 185 - (int)XBikeEventReceiver.Data.LeftRightSensor : 175 - (int)XBikeEventReceiver.Data.LeftRightSensor) : 0);
 		#endif
 		if(_moveSpeed != 0f || _rotSpeed != 0f)
 			SoundManager.Instance.PlayWaterFlowSound();
@@ -404,6 +412,14 @@ public class PlayerScript : MonoBehaviour {
 
 	void BaitTouchWater(){
 		_isBaitInWater = true;
+	}
+
+	public void SetBGMVolume(float value){
+		SoundManager.Instance.SetBGMVolume (value);
+	}
+
+	public void SetSoundVolume(float value){
+		SoundManager.Instance.SetSoundVolume (value);
 	}
 
 	/*Notify Observers*/

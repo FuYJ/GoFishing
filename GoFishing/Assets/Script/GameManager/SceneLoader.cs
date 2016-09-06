@@ -4,7 +4,7 @@ using System.Collections;
 public class SceneLoader : MonoBehaviour {
 
 	static public SceneLoader Instance;
-	private Scenes _own;
+	private Scenes _own = 0;
 	private Scenes _nowStage = 0;
 
 	public enum Scenes{
@@ -14,7 +14,9 @@ public class SceneLoader : MonoBehaviour {
 		SelectStage,
 		Stage1,
 		Stage2,
-		StageOver
+		StageOver,
+		GameRecord,
+		Setting
 	}
 
 	public Scenes NowStage{

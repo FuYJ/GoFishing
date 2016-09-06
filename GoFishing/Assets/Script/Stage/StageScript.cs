@@ -13,6 +13,7 @@ public class StageScript : MonoBehaviour {
 	protected int STAGE_TIME = 60;	//Time = 1 min
 	protected float TERRAIN_SIZE = 200;
 	private int _fishNumber;
+	private bool _isStagePlaying = true;
 
 	/*Fishes in the scene*/
 	public Transform[] _fishTransform;
@@ -54,7 +55,8 @@ public class StageScript : MonoBehaviour {
 
 		ShowBasicUI ();
 
-		SoundManager.Instance.PlayStageBackgroundMusic ();
+		SoundManager.Instance.StopBackgroundMusic2 ();
+		SoundManager.Instance.PlayBackgroundMusic1 ();
 		_time = STAGE_TIME;
 
 		GameObject[] _fish = GameObject.FindGameObjectsWithTag ("Fish");
@@ -71,25 +73,27 @@ public class StageScript : MonoBehaviour {
 
 	// Update is called once per frame
 	public void Update () {
-		/*Control timer*/
-		if(!_isPause)
-			_time = CountTime (_time);
-		if (_time <= 0)
-			MoveToGameOver ();
-		_timerText.text = ((int)_time).ToString ();
+		if (_isStagePlaying) {
+			/*Control timer*/
+			if (!_isPause)
+				_time = CountTime (_time);
+			if (_time <= 0)
+				MoveToGameOver ();
+			_timerText.text = ((int)_time).ToString ();
 
-		/*Control fishes' moving*/
-		_fishTurnaroundTime = CountTime (_fishTurnaroundTime);
-		if (_fishTurnaroundTime < 0) {
-			_fishTurnaroundTime = FISH_TURNAROUND_TIME;
-			for (int i = 0; i < _fishNumber; i++) {
-				Quaternion fromRot = _fishTransform [i].rotation;
-				Quaternion toRot = Quaternion.Euler (new Vector3 (0, Random.value * 360, 0));
-				_fishTransform [i].rotation = Quaternion.Slerp (fromRot, toRot, Time.time * FISH_TURNAROUND_SPEED);
+			/*Control fishes' moving*/
+			_fishTurnaroundTime = CountTime (_fishTurnaroundTime);
+			if (_fishTurnaroundTime < 0) {
+				_fishTurnaroundTime = FISH_TURNAROUND_TIME;
+				for (int i = 0; i < _fishNumber; i++) {
+					Quaternion fromRot = _fishTransform [i].rotation;
+					Quaternion toRot = Quaternion.Euler (new Vector3 (0, Random.value * 360, 0));
+					_fishTransform [i].rotation = Quaternion.Slerp (fromRot, toRot, Time.time * FISH_TURNAROUND_SPEED);
+				}
 			}
-		}
-		for (int i = 0; i < _fishNumber; i++) {
-			_fishCharacterController [i].Move (FISH_SPEED * _fishTransform[i].forward);
+			for (int i = 0; i < _fishNumber; i++) {
+				_fishCharacterController [i].Move (FISH_SPEED * _fishTransform [i].forward);
+			}
 		}
 	}
 
@@ -107,10 +111,13 @@ public class StageScript : MonoBehaviour {
 	public void SetPause(bool value){
 		_isPause = value;
 		if (value) {
+			GameManager.Instance.PauseSport ();
 			_basicUI.SetActive (false);
 			_pauseMenu.SetActive (true);
 		} else {
+			GameManager.Instance.StartSport ();
 			_basicUI.SetActive (true);
+			_playerInformation.SetActive (false);
 			_pauseMenu.SetActive (false);
 		}
 	}
@@ -128,8 +135,9 @@ public class StageScript : MonoBehaviour {
 		}
 	}
 
-	public virtual void MoveToGameOver(){
-		SoundManager.Instance.StopStageBackgroundMusic ();
+	public void MoveToGameOver(){
+		_isStagePlaying = false;
+		SoundManager.Instance.StopBackgroundMusic1 ();
 		PlayerScript _playerScript = GameObject.Find ("PlayerGroup").GetComponent<PlayerScript> ();
 		GameManager.Instance.InsertRecord (_playerScript.CachesNumber, _playerScript.Journey, (int)(STAGE_TIME - _time));
 
@@ -149,18 +157,5 @@ public class StageScript : MonoBehaviour {
 		dailyCaches.GetComponent<Text> ().text = GameManager.Instance.DailyRecord.Caches.ToString();
 		GameObject dailyJourney = GameObject.Find ("Canvas/PlayerDailyJourney/PlayerDailyJourneyText");
 		dailyJourney.GetComponent<Text> ().text = GameManager.Instance.DailyRecord.Journey.ToString();
-	}
-
-	public void ClosePlayerInformation(){
-		_playerInformation.SetActive (false);
-		_basicUI.SetActive (true);
-	}
-
-	public void SetBGMVolume(float value){
-		SoundManager.Instance.SetBGMVolume (value);
-	}
-
-	public void SetSoundVolume(float value){
-		SoundManager.Instance.SetSoundVolume (value);
 	}
 }

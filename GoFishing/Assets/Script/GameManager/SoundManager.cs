@@ -8,7 +8,8 @@ public class SoundManager : MonoBehaviour {
 	private float _soundVolume = 0.5f;
 
 	//BGM
-	public AudioSource m_backgroundMusic;
+	public AudioSource m_backgroundMusic1;
+	public AudioSource m_backgroundMusic2;
 
 	//Sounds
 	public AudioSource m_waterFlowSound;
@@ -20,6 +21,18 @@ public class SoundManager : MonoBehaviour {
 	public AudioSource m_fishHookedSound;
 
 	public static SoundManager Instance = null;
+
+	public float BGMVolume{
+		get{ 
+			return _BGMVolume;
+		}
+	}
+
+	public float SoundVolume{
+		get{ 
+			return _soundVolume;
+		}
+	}
 
 	void Awake() {
 		if (Instance == null) {
@@ -43,7 +56,8 @@ public class SoundManager : MonoBehaviour {
 
 	public void SetBGMVolume(float value){
 		_BGMVolume = value;
-		m_backgroundMusic.volume = _BGMVolume;
+		m_backgroundMusic1.volume = _BGMVolume;
+		m_backgroundMusic2.volume = _BGMVolume;
 	}
 
 	public void SetSoundVolume(float value){
@@ -92,13 +106,23 @@ public class SoundManager : MonoBehaviour {
 			m_reelingSound.Play ();
 	}
 
-	public void PlayStageBackgroundMusic (){
-		if(!m_backgroundMusic.isPlaying)
-			m_backgroundMusic.Play ();
+	public void PlayBackgroundMusic1 (){
+		if(!m_backgroundMusic1.isPlaying)
+			m_backgroundMusic1.Play ();
 	}
 
-	public void StopStageBackgroundMusic (){
-		if(m_backgroundMusic.isPlaying)
-			m_backgroundMusic.Stop ();
+	public void StopBackgroundMusic1 (){
+		if(m_backgroundMusic1.isPlaying)
+			m_backgroundMusic1.Stop ();
+	}
+
+	public void PlayBackgroundMusic2 (){
+		if(!m_backgroundMusic2.isPlaying)
+			m_backgroundMusic2.Play ();
+	}
+
+	public void StopBackgroundMusic2 (){
+		if(m_backgroundMusic2.isPlaying)
+			m_backgroundMusic2.Stop ();
 	}
 }

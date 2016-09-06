@@ -17,8 +17,8 @@ public class GameManager : MonoBehaviour {
 	private string[] _playerInfoCol = {"Name", "Age", "Gender", "Height", "Weight", "Avatar", "FootTrainingLevel", "ArmTrainingLevel"};
 	private string[] _playerInfoType = {"TEXT", "INTEGER", "INTEGER", "INTEGER", "INTEGER", "INTEGER", "INTEGER", "INTEGER"};
 	public static string GAME_RECORD = "GameRecord";
-	private string[] _gameRecordCol = {"PlayerName", "StageIndex", "Caches", "Journey", "Time"};
-	private string[] _gameRecordType = {"TEXT", "INTEGER", "INTEGER", "FLOAT", "INTEGER"};
+	private string[] _gameRecordCol = {"PlayerName", "StageIndex", "Caches", "Journey", "Duration", "Date", "Time"};
+	private string[] _gameRecordType = {"TEXT", "INTEGER", "INTEGER", "FLOAT", "INTEGER", "TEXT", "TEXT"};
 	private Database _db;
 	private string _databaseName = "GoFishing.db";
 	private SqliteDataReader _reader;
@@ -388,19 +388,42 @@ public class GameManager : MonoBehaviour {
 		Destroy (newMsg);
 	}
 
-	public void InsertRecord(int caches, double journey, int time){
+	public void InsertRecord(int caches, double journey, int duration){
 		_stageRecordRigister.Caches = caches;
 		_stageRecordRigister.Journey = journey;
-		_stageRecordRigister.Time = time;
+		_stageRecordRigister.Duration = duration;
 		_dailyRecord.Caches += caches;
 		_dailyRecord.Journey += journey;
-		_dailyRecord.Time += time;
+		_dailyRecord.Duration += duration;
 		_db.insertInto (GAME_RECORD, new string[] {
-			_player.Name,
+			"'" + _player.Name + "'",
 			((int)SceneLoader.Instance.NowStage).ToString(),
 			caches.ToString(),
 			journey.ToString(),
-			time.ToString()
+			duration.ToString(),
+			"'" + System.DateTime.Now.ToString("MM/dd/yyyy") + "'",
+			"'" + System.DateTime.Now.ToString("hh:mm:ss") + "'"
 		});
+	}
+
+	public List<GameRecord> LoadGameRecords(){
+		if (_player == null)
+			return new List<GameRecord> ();
+		_reader = _db.searchAccordData (GAME_RECORD, "PlayerName", "=", "'" + _player.Name + "'");
+		int[] stageIndex = _db.readIntData (_reader, "StageIndex");
+		_reader = _db.searchAccordData (GAME_RECORD, "PlayerName", "=", "'" + _player.Name + "'");
+		int[] caches = _db.readIntData (_reader, "Caches");
+		_reader = _db.searchAccordData (GAME_RECORD, "PlayerName", "=", "'" + _player.Name + "'");
+		float[] journey = _db.readFloatData (_reader, "Journey");
+		_reader = _db.searchAccordData (GAME_RECORD, "PlayerName", "=", "'" + _player.Name + "'");
+		int[] duration = _db.readIntData (_reader, "Duration");
+		_reader = _db.searchAccordData (GAME_RECORD, "PlayerName", "=", "'" + _player.Name + "'");
+		string[] date = _db.readStringData (_reader, "Date");
+		_reader = _db.searchAccordData (GAME_RECORD, "PlayerName", "=", "'" + _player.Name + "'");
+		string[] time = _db.readStringData (_reader, "Time");
+		List<GameRecord> gameRecord = new List<GameRecord> ();
+		for (int i = 0; i < stageIndex.Length; i++)
+			gameRecord.Add (new GameRecord (stageIndex [i], caches [i], journey [i], duration [i], date [i], time [i]));
+		return gameRecord;
 	}
 }
