@@ -12,6 +12,6 @@ public class FishHookedAnimation : MonoBehaviour {
 	}
 
 	void UpdateFishWeight(){
-		m_fishWeight.text = m_player.FishWeight.ToString () + "kg";
+		m_fishWeight.text = m_player.FishWeight.ToString () + "g";
 	}
 }

@@ -8,8 +8,8 @@ public class PlayerScript : MonoBehaviour {
 	public const string BOATING_STATE = "boating";
 	public const string WATING_FISH_STATE = "wating fish";
 	public const string FISHING_STATE = "fishing";
-	public const float MAX_MOVE_SPEED = 0.8f;
-	public const float MAX_ROD_ANGLE = 30f;
+	public const float MAX_MOVE_SPEED = 50f;
+	public const float MAX_ROD_ANGLE = 60f;
 	public const float MAX_REEL_SPEED = 100f;
 	public const float MAX_FISH_DEPTH = 2000f;
 
@@ -25,7 +25,7 @@ public class PlayerScript : MonoBehaviour {
 	public CharacterController m_CharacterController;
 
 	/*Player parameter*/
-	private float _speed = 2.5f;
+	private float _speed = 30f;
 	private PlayerState _playerState;
 	private string _playerMode = "boating";
 
@@ -118,7 +118,7 @@ public class PlayerScript : MonoBehaviour {
 
 	public float RodPullAngle{
 		get{
-			return _rodPull;
+			return _rodPull + 30f;
 		}
 	}
 
@@ -191,39 +191,39 @@ public class PlayerScript : MonoBehaviour {
 
 	void Move ()
 	{
+		_speed = 30f;
 		_moveSpeed = 0f;
 		_rotSpeed = 0f;
 		#if UNITY_EDITOR
 		if (Input.GetKey (KeyCode.W)) {
-			_moveSpeed += _speed * 5 * Time.deltaTime;
+			_moveSpeed += _speed;
 		}
 		if (Input.GetKey (KeyCode.S)) {
-			_moveSpeed -= _speed * 5 * Time.deltaTime;
+			_moveSpeed -= _speed;
 		}
 		if (Input.GetKey (KeyCode.D)) {
-			_rotSpeed += _speed * 5 * Time.deltaTime;
+			_rotSpeed += 12.5f;
 		}
 		if (Input.GetKey (KeyCode.A)) {
-			_rotSpeed -= _speed * 5 * Time.deltaTime;
+			_rotSpeed -= 12.5f;
 		}
 		#elif UNITY_ANDROID
+		/*Speed range: 0 ~ 50, avg: 30*/
+		_speed = (float)XBikeEventReceiver.Data.Speed;
+		_speed = (_speed < MAX_MOVE_SPEED) ? _speed : MAX_MOVE_SPEED;
 		if((int)XBikeEventReceiver.Data.RPMDirection == 1)
-			_moveSpeed += _speed * (float)XBikeEventReceiver.Data.Speed / 5 * Time.deltaTime;
+			_moveSpeed += _speed;
 		else
-			_moveSpeed -= _speed * (float)XBikeEventReceiver.Data.Speed / 5 * Time.deltaTime;
-		//rot += _speed * ((((float)XBikeEventReceiver.Data.LeftRightSensor - 180)) / 10) * Time.deltaTime;
-		_rotSpeed -= _speed * Time.deltaTime * (float)((Mathf.Abs((int)XBikeEventReceiver.Data.LeftRightSensor - 180) > 5) ? (((int)XBikeEventReceiver.Data.LeftRightSensor > 0) ? 185 - (int)XBikeEventReceiver.Data.LeftRightSensor : 175 - (int)XBikeEventReceiver.Data.LeftRightSensor) : 0);
+			_moveSpeed -= _speed;
+		_rotSpeed -= 2.5f * (float)((Mathf.Abs((int)XBikeEventReceiver.Data.LeftRightSensor - 180) > 5) ? (((int)XBikeEventReceiver.Data.LeftRightSensor > 0) ? 185 - (int)XBikeEventReceiver.Data.LeftRightSensor : 175 - (int)XBikeEventReceiver.Data.LeftRightSensor) : 0);
 		#endif
 		if(_moveSpeed != 0f || _rotSpeed != 0f)
 			SoundManager.Instance.PlayWaterFlowSound();
 
-		_moveSpeed = (_moveSpeed < MAX_MOVE_SPEED) ? _moveSpeed : MAX_MOVE_SPEED;
-		m_CharacterController.Move (m_transform.TransformDirection (new Vector3 (0, 0, _moveSpeed)));
-		//m_transform.eulerAngles += new Vector3 (0, _rotSpeed, 0);
-		m_transform.Rotate(Vector3.up, _rotSpeed);
+		m_CharacterController.Move (m_transform.TransformDirection (new Vector3 (0, 0, _moveSpeed / 2.4f * Time.deltaTime)));
+		m_transform.Rotate(Vector3.up, _rotSpeed * Time.deltaTime);
 
 		/*Update meter data*/
-		//m_meterData.text = ((int)Mathf.Abs((_moveSpeed * 10))).ToString();
 		UpdateJourney ();
 		NotifyMeterValueChanged ();
 	}
@@ -242,9 +242,9 @@ public class PlayerScript : MonoBehaviour {
 		_rodAngles.x = 0;
 		#if UNITY_EDITOR
 		if (Input.GetKey (KeyCode.W) && !_isRodReady && !_isFishing) {
-			if(_rodPull < MAX_ROD_ANGLE){
+			if(_rodPull < MAX_ROD_ANGLE - 30f){
 				_rodPull++;
-				_rodAngles.x = -2;
+				_rodAngles.x = -1;
 			}
 		}
 		if(Input.GetKey(KeyCode.S) && !_isRodReady && !_isFishing){
@@ -261,10 +261,10 @@ public class PlayerScript : MonoBehaviour {
 			_reelingSpeed -= 0.5f;
 		}
 		#elif UNITY_ANDROID
-		/*UpDown Sensor Region about 180 ~ 210*/
+		/*UpDown Sensor Region about 150 ~ 210*/
 		if(!_isFishing){
-			//_rodAngles.x = (Mathf.Abs((int)XBikeEventReceiver.Data.UpDownSensor - 180) > 5) ? (((int)XBikeEventReceiver.Data.UpDownSensor > 0) ? 185 - (int)XBikeEventReceiver.Data.UpDownSensor : 175 - (int)XBikeEventReceiver.Data.UpDownSensor) : 0;
-			_rodAngles.x = ((int)XBikeEventReceiver.Data.UpDownSensor - 180 > 10) ? -2 : ((int)XBikeEventReceiver.Data.UpDownSensor - 180 < -10) ? 2 : 0;
+			_rodAngles.x = 180 - (int)XBikeEventReceiver.Data.UpDownSensor;
+			/*_rodAngles.x = ((int)XBikeEventReceiver.Data.UpDownSensor - 180 > 10) ? -2 : ((int)XBikeEventReceiver.Data.UpDownSensor - 180 < -10) ? 2 : 0;
 			if(_rodAngles.x > 0){
 				if(_rodPull <= 0)
 					_rodAngles.x  = 0;
@@ -276,11 +276,11 @@ public class PlayerScript : MonoBehaviour {
 					_rodAngles.x = 0;
 				else
 					_rodPull++;
-			}
+			}*/
 		}
 		if((bool)XBikeEventReceiver.Right && !_isRodReady && !_isFishing){
 			_isRodReady = true;
-			//_rodPull = (float)XBikeEventReceiver.Data.UpDownSensor - 180;
+			_rodPull = (float)XBikeEventReceiver.Data.UpDownSensor - 180;
 			m_baitRigidbody.AddForce(new Vector3(0, 500, 6000 + Mathf.Max(Mathf.Min(_rodPull, 30), 0) * 300));
 		}
 
@@ -334,6 +334,7 @@ public class PlayerScript : MonoBehaviour {
 			_timeSlicePerRound = 5f;
 			if (_isBaitInWater && !_isFishing) {
 				if (Random.value <= _hookProbability) {
+					GameManager.Instance.PrintAlarmMessage ("魚上鉤了!!");
 					_isRodReady = false;
 					_isFishing = true;
 					_fishDepth = Random.Range (200, 1000);
@@ -403,12 +404,14 @@ public class PlayerScript : MonoBehaviour {
 
 	void ChangePlayerState(){
 		if (_playerMode == BOATING_STATE) {
+			GameManager.Instance.PrintAlarmMessage ("已切換至釣魚模式");
 			_playerMode = WATING_FISH_STATE;
 			Vector3 pos = m_transform.position + _rodDistance;
 			m_rodTransform.position = pos;
 			m_rod.SetActive (true);
 			ResetRod ();
 		} else {
+			GameManager.Instance.PrintAlarmMessage ("已切換至划船模式");
 			_playerMode = BOATING_STATE;
 			_lastDistance = XBikeEventReceiver.Data.Distance;
 			m_rodTransform.Translate (10000, 10000, 10000);
