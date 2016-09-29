@@ -46,7 +46,7 @@ public class GameRecordScript : MonoBehaviour {
 }
 
 	private void LoadPlayerRecords(){
-		
+
 	}
 
 	public void OnBackButtonClick(){

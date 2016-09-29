@@ -33,6 +33,7 @@ public class GameManager : MonoBehaviour {
 	private AsyncOperation _loadOperation;
 
 	public GameObject m_errorMessage;
+	public GameObject m_alarmMessage;
 
 	public static GameManager Instance = null;
 
@@ -386,6 +387,18 @@ public class GameManager : MonoBehaviour {
 		errorText.text = msg;
 		GameObject newMsg = Instantiate (m_errorMessage);
 		yield return new WaitForSeconds (3);
+		Destroy (newMsg);
+	}
+
+	public void PrintAlarmMessage(string msg){
+		StartCoroutine (PopUpAlarmMessage (msg));
+	}
+
+	private IEnumerator PopUpAlarmMessage(string msg){
+		UnityEngine.UI.Text alarmText = m_alarmMessage.GetComponentInChildren<UnityEngine.UI.Text> ();
+		alarmText.text = msg;
+		GameObject newMsg = Instantiate (m_alarmMessage);
+		yield return new WaitForSeconds (0.5f);
 		Destroy (newMsg);
 	}
 

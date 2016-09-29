@@ -48,6 +48,10 @@ public class StageScript : MonoBehaviour {
 
 	// Use this for initialization
 	public void Start () {
+		if (GameManager.Instance.SportStatus != XBikeEventReceiver.SportStatus.Start) {
+			GameManager.Instance.StartSport ();
+		}
+
 		_basicUI = GameObject.Find ("PlayerGroup/BasicUI");
 		_pauseMenu = GameObject.Find ("PlayerGroup/PauseUI/PauseMenu");
 		_timerText = GameObject.Find ("PlayerGroup/BasicUI/Timer/TimerText").GetComponent<TextMesh> ();

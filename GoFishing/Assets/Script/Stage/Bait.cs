@@ -20,6 +20,7 @@ public class Bait : MonoBehaviour {
 			m_baitRigidbody.isKinematic = true;
 			m_baitRigidbody.useGravity = false;
 			m_baitRigidbody.velocity = new Vector3 (0, 0, 0);
+			GameManager.Instance.PrintAlarmMessage ("等待魚上鉤中");
 			NotifyBaitTouchedWater ();
 		}
 	}

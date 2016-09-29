@@ -24,6 +24,6 @@ public class ScoreBoard : MonoBehaviour {
 	}
 
 	void JourneyChanged(){
-		m_journeyNumber.text = m_player.Journey.ToString () + "km";
+		m_journeyNumber.text = m_player.Journey.ToString ("F2") + "km";
 	}
 }
