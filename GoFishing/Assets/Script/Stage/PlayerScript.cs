@@ -240,6 +240,7 @@ public class PlayerScript : MonoBehaviour {
 		CheckFishHookedOrEscaped ();
 
 		_rodAngles.x = 0;
+		_reelingSpeed = 0f;
 		#if UNITY_EDITOR
 		if (Input.GetKey (KeyCode.W) && !_isRodReady && !_isFishing) {
 			if(_rodPull < MAX_ROD_ANGLE - 30f){
@@ -254,16 +255,18 @@ public class PlayerScript : MonoBehaviour {
 		}
 		if (Input.GetKey (KeyCode.D) && _isFishing) {
 			SoundManager.Instance.PlayReelingSound();
-			_reelingSpeed += 0.5f;
+			_reelingSpeed = Mathf.Log(60);
 		}
 		if (Input.GetKey (KeyCode.A) && _isFishing) {
 			SoundManager.Instance.PlayReelingSound();
-			_reelingSpeed -= 0.5f;
+			_reelingSpeed = -3.689f;
 		}
 		#elif UNITY_ANDROID
 		/*UpDown Sensor Region about 150 ~ 210*/
 		if(!_isFishing){
-			_rodAngles.x =  180 - (int)XBikeEventReceiver.Data.UpDownSensor;
+			m_rodTransform.rotation = m_transform.rotation;
+			m_rodTransform.eulerAngles += _rodInitialAngles;
+			_rodAngles.x = ((int)XBikeEventReceiver.Data.UpDownSensor - 185 > 0) ? 185 - (int)XBikeEventReceiver.Data.UpDownSensor : ((175 - (int)XBikeEventReceiver.Data.UpDownSensor > 0) ? 175 - (int)XBikeEventReceiver.Data.UpDownSensor : 0);
 			/*_rodAngles.x = ((int)XBikeEventReceiver.Data.UpDownSensor - 180 > 10) ? -2 : ((int)XBikeEventReceiver.Data.UpDownSensor - 180 < -10) ? 2 : 0;
 			if(_rodAngles.x > 0){
 				if(_rodPull <= 0)
@@ -286,13 +289,14 @@ public class PlayerScript : MonoBehaviour {
 		/*Speed Region about 0 ~ 50*/
 		if((int)XBikeEventReceiver.Data.RPMDirection == 1 && _isFishing){
 			SoundManager.Instance.PlayReelingSound();
-			_reelingSpeed += Mathf.Log((float)XBikeEventReceiver.Data.Speed) / 6;
+			_reelingSpeed = Mathf.Log((float)XBikeEventReceiver.Data.RPM + 1);
 		}
 		else if((int)XBikeEventReceiver.Data.RPMDirection == 0 && _isFishing){
 			SoundManager.Instance.PlayReelingSound();
-			_reelingSpeed -= Mathf.Log((float)XBikeEventReceiver.Data.Speed) / 6;
+			_reelingSpeed = -Mathf.Log((float)XBikeEventReceiver.Data.RPM + 1);
 		}
 		#endif
+
 		m_rodTransform.eulerAngles += _rodAngles;
 		NotifyMeterValueChanged ();
 		NotifyFishDepthChanged ();
@@ -356,7 +360,7 @@ public class PlayerScript : MonoBehaviour {
 	IEnumerator SetFishEscapeSpeed(){
 		_fishEscapeSpeed = 0f;
 		yield return new WaitForSeconds (3);
-		_fishEscapeSpeed = 10f;
+		_fishEscapeSpeed = 1f;
 	}
 
 	void CheckFishHookedOrEscaped(){

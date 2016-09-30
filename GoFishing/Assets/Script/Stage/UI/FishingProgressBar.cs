@@ -17,7 +17,7 @@ public class FishingProgressBar : MonoBehaviour {
 	}
 
 	void ChangeFishDepth() {
-		m_fishDepthNumber.text = m_player.FishDepth.ToString();
+		m_fishDepthNumber.text = m_player.FishDepth.ToString("F2") + " m";
 		m_fishIcon.localPosition = new Vector3 (MIN_X + (PlayerScript.MAX_FISH_DEPTH - m_player.FishDepth) / PlayerScript.MAX_FISH_DEPTH * PROGRESS_BAR_RANGE, 0f, -0.02f);
 	}
 }

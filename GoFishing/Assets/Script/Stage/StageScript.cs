@@ -155,11 +155,13 @@ public class StageScript : MonoBehaviour {
 	}
 
 	private void LoadPlayerInformation(){
+		GameObject player = GameObject.Find ("PlayerGroup");
+		PlayerScript playerScript = player.GetComponent<PlayerScript> ();
 		GameObject playerName = GameObject.Find ("Canvas/PlayerName/PlayerNameText");
 		playerName.GetComponent<Text> ().text = GameManager.Instance.Player.Name;
 		GameObject dailyCaches = GameObject.Find ("Canvas/PlayerDailyCaches/PlayerDailyCachesText");
-		dailyCaches.GetComponent<Text> ().text = GameManager.Instance.DailyRecord.Caches.ToString();
+		dailyCaches.GetComponent<Text> ().text = (GameManager.Instance.DailyRecord.Caches + playerScript.CachesNumber).ToString();
 		GameObject dailyJourney = GameObject.Find ("Canvas/PlayerDailyJourney/PlayerDailyJourneyText");
-		dailyJourney.GetComponent<Text> ().text = GameManager.Instance.DailyRecord.Journey.ToString();
+		dailyJourney.GetComponent<Text> ().text = (GameManager.Instance.DailyRecord.Journey + playerScript.Journey).ToString();
 	}
 }
