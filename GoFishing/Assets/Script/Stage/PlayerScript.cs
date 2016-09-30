@@ -13,9 +13,6 @@ public class PlayerScript : MonoBehaviour {
 	public const float MAX_REEL_SPEED = 4.605f;
 	public const float MAX_FISH_DEPTH = 2000f;
 
-	/*XBike parameters setup*/
-	public float resistanceValue = 1.0f;
-
 	/*Player's gameobjects*/
 	Transform m_transform;
 	public GameObject m_rod;
@@ -346,7 +343,7 @@ public class PlayerScript : MonoBehaviour {
 					_fishDepth = Random.Range (200, 1000);
 					_fishWeight = Random.Range (200, 1599);
 					#if UNITY_ANDROID
-					resistanceValue = _fishWeight / 200;
+					GameManager.Instance.resistanceValue = _fishWeight / 200;
 					#endif
 					_playerMode = FISHING_STATE;
 					NotifyPlayerModeChanged ();
@@ -427,7 +424,7 @@ public class PlayerScript : MonoBehaviour {
 	}
 
 	void ChangeHookProbability(Block e){
-		_hookProbability = e.m_hookProbability;
+		_hookProbability += e.m_hookProbability;
 	}
 
 	void BaitTouchWater(){

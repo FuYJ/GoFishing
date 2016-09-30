@@ -107,7 +107,7 @@ public class StageScript : MonoBehaviour {
 		_playerInformation.SetActive (false);
 	}
 
-	protected virtual float CountTime (float time){
+	protected float CountTime (float time){
 		time -= Time.deltaTime;
 		return time;
 	}
