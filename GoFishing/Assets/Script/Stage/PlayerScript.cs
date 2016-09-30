@@ -10,7 +10,7 @@ public class PlayerScript : MonoBehaviour {
 	public const string FISHING_STATE = "fishing";
 	public const float MAX_MOVE_SPEED = 50f;
 	public const float MAX_ROD_ANGLE = 60f;
-	public const float MAX_REEL_SPEED = 100f;
+	public const float MAX_REEL_SPEED = 4.605f;
 	public const float MAX_FISH_DEPTH = 2000f;
 
 	/*XBike parameters setup*/
@@ -255,7 +255,8 @@ public class PlayerScript : MonoBehaviour {
 		}
 		if (Input.GetKey (KeyCode.D) && _isFishing) {
 			SoundManager.Instance.PlayReelingSound();
-			_reelingSpeed = Mathf.Log(60);
+			_reelingSpeed = Mathf.Log(80f);
+			Debug.Log(Mathf.Log(10f).ToString());
 		}
 		if (Input.GetKey (KeyCode.A) && _isFishing) {
 			SoundManager.Instance.PlayReelingSound();
@@ -374,7 +375,7 @@ public class PlayerScript : MonoBehaviour {
 			ResetRod ();
 			SoundManager.Instance.PlaySuccessSound ();
 			StartCoroutine ("PlayFishHookedAnimation");
-		} else if (_reelingSpeed > MAX_REEL_SPEED * 0.9 && _isFishing) {
+		} else if (_reelingSpeed > MAX_REEL_SPEED && _isFishing) {
 			_playerMode = WATING_FISH_STATE;
 			ResetRod ();
 			SoundManager.Instance.PlayFailSound ();

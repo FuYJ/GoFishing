@@ -33,7 +33,7 @@ public class Meter : MonoBehaviour {
 			m_meterData.text = m_player.RodPullAngle.ToString ("F2");
 			m_anchorTransform.localPosition = new Vector3 (0, m_player.RodPullAngle / PlayerScript.MAX_ROD_ANGLE * MAX_RANGE, 0);
 		} else if (_playerMode == PlayerScript.FISHING_STATE) {
-			m_meterData.text = m_player.ReelingSpeed.ToString ();
+			m_meterData.text = m_player.ReelingSpeed.ToString ("F2") + "m/s";
 			m_anchorTransform.localPosition = new Vector3 (0, m_player.ReelingSpeed / PlayerScript.MAX_REEL_SPEED * MAX_RANGE, 0);
 		}
 	}
