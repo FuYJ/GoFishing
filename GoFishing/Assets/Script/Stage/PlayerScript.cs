@@ -263,7 +263,7 @@ public class PlayerScript : MonoBehaviour {
 		#elif UNITY_ANDROID
 		/*UpDown Sensor Region about 150 ~ 210*/
 		if(!_isFishing){
-			_rodAngles.x = 180 - (int)XBikeEventReceiver.Data.UpDownSensor;
+			_rodAngles.x =  180 - (int)XBikeEventReceiver.Data.UpDownSensor;
 			/*_rodAngles.x = ((int)XBikeEventReceiver.Data.UpDownSensor - 180 > 10) ? -2 : ((int)XBikeEventReceiver.Data.UpDownSensor - 180 < -10) ? 2 : 0;
 			if(_rodAngles.x > 0){
 				if(_rodPull <= 0)
@@ -283,14 +283,14 @@ public class PlayerScript : MonoBehaviour {
 			_rodPull = (float)XBikeEventReceiver.Data.UpDownSensor - 180;
 			m_baitRigidbody.AddForce(new Vector3(0, 500, 6000 + Mathf.Max(Mathf.Min(_rodPull, 30), 0) * 300));
 		}
-
+		/*Speed Region about 0 ~ 50*/
 		if((int)XBikeEventReceiver.Data.RPMDirection == 1 && _isFishing){
 			SoundManager.Instance.PlayReelingSound();
-			_reelingSpeed += (float)XBikeEventReceiver.Data.Speed / 10;
+			_reelingSpeed += Mathf.Log((float)XBikeEventReceiver.Data.Speed) / 6;
 		}
 		else if((int)XBikeEventReceiver.Data.RPMDirection == 0 && _isFishing){
 			SoundManager.Instance.PlayReelingSound();
-			_reelingSpeed -= (float)XBikeEventReceiver.Data.Speed / 10;
+			_reelingSpeed -= Mathf.Log((float)XBikeEventReceiver.Data.Speed) / 6;
 		}
 		#endif
 		m_rodTransform.eulerAngles += _rodAngles;
@@ -323,6 +323,7 @@ public class PlayerScript : MonoBehaviour {
 		if (!m_bait.GetComponent<HingeJoint> ()) {
 			HingeJoint baitHingeJoint = m_bait.AddComponent<HingeJoint> ();
 			baitHingeJoint.connectedBody = m_rodRigidbody;
+			baitHingeJoint.axis = new Vector3 (0, 0, 0);
 			baitHingeJoint.anchor = new Vector3 (0f, 0.5f, 0f);
 			baitHingeJoint.breakForce = 100f;
 		}
