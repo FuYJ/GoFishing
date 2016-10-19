@@ -20,5 +20,6 @@ public class SceneNameHolder {
 	public int handStarNumber = 0;
 	public int footStarNumber = 0;
 	public int coordinationStarNumber = 0;
+	public string stageDescription = "";
 }
 

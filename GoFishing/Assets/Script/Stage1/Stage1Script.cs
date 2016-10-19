@@ -2,11 +2,19 @@
 using System.Collections;
 
 public class Stage1Script : StageScript {
+
+	public GameObject m_redBlock;
+	public GameObject m_yellowBlock;
+	public GameObject m_greenBlock;
+
+	private float _countTime;
+
 	// Use this for initialization
 	void Awake () {
 		base.Awake ();
 		STAGE_TIME = 180;
-		TERRAIN_SIZE = 200f;
+		TERRAIN_SIZE = 500f;
+		_countTime = STAGE_TIME / 3;
 	}
 
 	void Start() {
@@ -15,5 +23,16 @@ public class Stage1Script : StageScript {
 
 	void Update(){
 		base.Update ();
+		_countTime = CountTime (_countTime);
+		if (_countTime < 0) {
+			changeBlockPos ();
+			_countTime = STAGE_TIME / 3;
+		}
+	}
+
+	private void changeBlockPos(){
+		m_redBlock.transform.position = new Vector3 (Random.Range (0, TERRAIN_SIZE), -0.01f, Random.Range (0, TERRAIN_SIZE));
+		m_greenBlock.transform.position = new Vector3 (Random.Range (0, TERRAIN_SIZE), -0.01f, Random.Range (0, TERRAIN_SIZE));
+		m_yellowBlock.transform.position = new Vector3 (Random.Range (0, TERRAIN_SIZE), -0.01f, Random.Range (0, TERRAIN_SIZE));
 	}
 }
