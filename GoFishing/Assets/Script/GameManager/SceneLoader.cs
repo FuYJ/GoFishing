@@ -9,7 +9,8 @@ public class SceneLoader : MonoBehaviour {
 
 	public enum Scenes{
 		Start = 0,
-		SelectPlayer,
+        DailyTask,
+        SelectPlayer,
 		Menu,
 		SelectStage,
 		Stage1,

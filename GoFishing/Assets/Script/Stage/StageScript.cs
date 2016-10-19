@@ -38,7 +38,7 @@ public class StageScript : MonoBehaviour {
 
 
 	public void Awake () {
-		if (SoundManager.Instance == null)
+        if (SoundManager.Instance == null)
 			Instantiate (m_soundManager);
 		if (GameManager.Instance == null)
 			Instantiate (m_gameManager);

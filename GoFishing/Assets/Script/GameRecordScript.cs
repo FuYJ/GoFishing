@@ -30,7 +30,7 @@ public class GameRecordScript : MonoBehaviour {
 
 	private void LoadPlayerRecords(){
 		_gameRecords = GameManager.Instance.LoadGameRecords ();
-		RectTransform recordsFieldRect = m_recordsField.GetComponent<RectTransform> ();
+        RectTransform recordsFieldRect = m_recordsField.GetComponent<RectTransform> ();
 		recordsFieldRect.offsetMin = new Vector2 (recordsFieldRect.offsetMin.x, -(225 + (_gameRecords.Count - 3) * 75));
 		recordsFieldRect.offsetMax = new Vector2 (recordsFieldRect.offsetMax.x, 225 + (_gameRecords.Count - 3) * 75);
 		_recordPos = new Vector3 (-40, (225 + (_gameRecords.Count - 3) * 75) - 75, 0);

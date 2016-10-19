@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Mono.Data.Sqlite;
 using UnityEngine.SceneManagement;
+using System;
 
 public class GameManager : MonoBehaviour {
 
@@ -19,11 +20,15 @@ public class GameManager : MonoBehaviour {
 	public static string GAME_RECORD = "GameRecord";
 	private string[] _gameRecordCol = {"PlayerName", "StageIndex", "Caches", "Journey", "Duration", "Date", "Time"};
 	private string[] _gameRecordType = {"TEXT", "INTEGER", "INTEGER", "FLOAT", "INTEGER", "TEXT", "TEXT"};
-	private Database _db;
+    private static string DAILY_TASK = "Daily_Task";
+    private string[] _dailyTaskCol = { "PlayerName", "Task0Number", "Complete0", "Task1Number", "Complete1", "Task2Number", "Complete2", "Date" };
+    private string[] _dailyTaskType = { "TEXT", "INTEGER", "FLOAT", "INTEGER", "FLOAT", "INTEGER", "FLOAT", "TEXT" };
+    private Database _db;
 	private string _databaseName = "GoFishing.db";
 	private SqliteDataReader _reader;
 
-	/*Information register*/
+    /*Information register*/
+    private DailyTask _dailyTask;
 	private PlayerData _player;
 	private GameRecord _dailyRecord;
 	private GameRecord _stageRecordRigister;
@@ -97,6 +102,18 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
+    public DailyTask DailyTask
+    {
+        get
+        {
+            return _dailyTask;
+        }
+        set
+        {
+            _dailyTask = value;
+        }
+    }
+
 	public XBikeEventReceiver.ConnectionStatus ConnectionStatus{
 		get{
 			return connectionStatus;
@@ -124,20 +141,24 @@ public class GameManager : MonoBehaviour {
 		_db = new Database (_databaseName);
 		_db.openDatabaseConnecting ();
 
-		//Test
-		//_db.deleteTable (PLAYER_INFO);
-		//_db.deleteTable (GAME_RECORD);
-		//Test
+        //Test
+//        _db.deleteTable (PLAYER_INFO);
+//        _db.deleteTable (GAME_RECORD);
+//        _db.deleteTable(DAILY_TASK);
+        //Test
 
-		if (!_db.isTableExists (PLAYER_INFO))
+        if (!_db.isTableExists (PLAYER_INFO))
 			_db.createTable (PLAYER_INFO, _playerInfoCol, _playerInfoType);
 		if (!_db.isTableExists (GAME_RECORD))
 			_db.createTable (GAME_RECORD, _gameRecordCol, _gameRecordType);
+        if(!_db.isTableExists(DAILY_TASK))
+            _db.createTable(DAILY_TASK, _dailyTaskCol, _dailyTaskType);
 
-		//_db.insertInto (PLAYER_INFO, new string[]{ "'1'", "1", "1", "1", "1", "1", "1", "1" });
+        //_db.insertInto (PLAYER_INFO, new string[]{ "'1'", "1", "1", "1", "1", "1", "1", "1" });
 
-		_dailyRecord = new GameRecord ();
+        _dailyRecord = new GameRecord ();
 		_stageRecordRigister = new GameRecord ();
+        _dailyTask = new DailyTask();
 	}
 
 	#if UNITY_EDITOR
@@ -420,7 +441,69 @@ public class GameManager : MonoBehaviour {
 		});
 	}
 
-	public List<GameRecord> LoadGameRecords(){
+    public void EditDailyTaskData(DailyTask date, string name)
+    {
+                _db.updateInto(DAILY_TASK, _dailyTaskCol, new string[] {
+                    "'" + name + "'",
+                    date.TaskNumber[0].ToString(),
+                    date.Complete[0].ToString(),
+                    date.TaskNumber[1].ToString(),
+                    date.Complete[1].ToString(),
+                    date.TaskNumber[2].ToString(),
+                    date.Complete[2].ToString(),
+                    "'" + date.Date.ToString() + "'",
+                }, "PlayerName", "'" + name + "'");
+    }
+
+    public DailyTask InitializeDailyTask()
+    {
+        _reader = _db.searchAccordData(DAILY_TASK, "PlayerName", "=", "'" + _player.Name + "'");
+        int[] Task0Number = _db.readIntData(_reader, "Task0Number");
+        _reader = _db.searchAccordData(DAILY_TASK, "PlayerName", "=", "'" + _player.Name + "'");
+        int[] Task1Number = _db.readIntData(_reader, "Task1Number");
+        _reader = _db.searchAccordData(DAILY_TASK, "PlayerName", "=", "'" + _player.Name + "'");
+        int[] Task2Number = _db.readIntData(_reader, "Task2Number");
+        _reader = _db.searchAccordData(DAILY_TASK, "PlayerName", "=", "'" + _player.Name + "'");
+        float[] Complete0 = _db.readFloatData(_reader, "Complete0");
+        _reader = _db.searchAccordData(DAILY_TASK, "PlayerName", "=", "'" + _player.Name + "'");
+        float[] Complete1 = _db.readFloatData(_reader, "Complete1");
+        _reader = _db.searchAccordData(DAILY_TASK, "PlayerName", "=", "'" + _player.Name + "'");
+        float[] Complete2 = _db.readFloatData(_reader, "Complete2");
+        _reader = _db.searchAccordData(DAILY_TASK, "PlayerName", "=", "'" + _player.Name + "'");
+        String[] Date = _db.readStringData(_reader, "Date");
+        if (Task0Number.Length == 0)
+        {
+            _dailyTask.Name = _player.Name;
+            _dailyTask.TaskNumber = new int[] { -1, -1, -1};
+            _dailyTask.Complete = new float[] { 0, 0, 0};
+            _dailyTask.MarkTime();
+            _dailyTask.CreateTaskRandomly();
+            InsertDailyTaskData(_dailyTask);
+            return _dailyTask;
+        }
+        _dailyTask.Name = _player.Name;
+        _dailyTask.TaskNumber = new int[] { Task0Number[0], Task1Number[0], Task2Number[0] };
+        _dailyTask.Complete = new float[] { Complete0[0], Complete1[0], Complete2[0] };
+        _dailyTask.Date = Convert.ToDateTime(Date[0]);
+        _dailyTask.CreateTaskRandomly();
+        return _dailyTask;
+    }
+
+    public void InsertDailyTaskData(DailyTask data)
+    {
+        _db.insertInto(DAILY_TASK, new string[] {
+            "'" + data.Name + "'",
+            data.TaskNumber[0].ToString(),
+            data.Complete[0].ToString(),
+            data.TaskNumber[1].ToString(),
+            data.Complete[1].ToString(),
+            data.TaskNumber[2].ToString(),
+            data.Complete[2].ToString(),
+            "'" + data.Date.ToString() + "'"
+        });
+    }
+
+    public List<GameRecord> LoadGameRecords(){
 		if (_player == null)
 			return new List<GameRecord> ();
 		_reader = _db.searchAccordData (GAME_RECORD, "PlayerName", "=", "'" + _player.Name + "'");
@@ -440,4 +523,17 @@ public class GameManager : MonoBehaviour {
 			gameRecord.Add (new GameRecord (stageIndex [i], caches [i], journey [i], duration [i], date [i], time [i]));
 		return gameRecord;
 	}
+
+    public void Test()
+    {
+        Debug.Log("-----------------------------------------------");
+        _reader = _db.searchAccordData(DAILY_TASK, "PlayerName", "=", "'" + "" + "'");
+        int[] stageIndex = _db.readIntData(_reader, "Task0Number");
+        if (stageIndex.Length == 0)
+        {
+            Debug.Log("***************************************************");
+        }
+        Debug.Log("1***************************************************");
+        Debug.Log(stageIndex);
+    }
 }
