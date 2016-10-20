@@ -9,7 +9,6 @@ public class SceneLoader : MonoBehaviour {
 
 	public enum Scenes{
 		Start = 0,
-        DailyTask,
         SelectPlayer,
 		Menu,
 		SelectStage,
@@ -17,8 +16,9 @@ public class SceneLoader : MonoBehaviour {
 		Stage2,
 		StageOver,
 		GameRecord,
-		Setting
-	}
+		Setting,
+        DailyTask
+    }
 
 	public Scenes NowStage{
 		get{ 
