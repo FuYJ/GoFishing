@@ -28,8 +28,8 @@ public class StageScript : MonoBehaviour {
 	public GameObject m_soundManager;
 	public GameObject m_sceneLoader;
 	private TextMesh _timerText;
-	private float _time;
-	private bool _isPause = false;
+	private float _stageTime;
+	protected bool _isPause = false;
 
 	/*Grid*/
 	public GameObject m_grid;
@@ -61,7 +61,7 @@ public class StageScript : MonoBehaviour {
 
 		SoundManager.Instance.StopBackgroundMusic2 ();
 		SoundManager.Instance.PlayBackgroundMusic1 ();
-		_time = STAGE_TIME;
+		_stageTime = STAGE_TIME;
 
 		GameObject[] _fish = GameObject.FindGameObjectsWithTag ("Fish");
 		_fishNumber = _fish.Length;
@@ -80,10 +80,10 @@ public class StageScript : MonoBehaviour {
 		if (_isStagePlaying) {
 			/*Control timer*/
 			if (!_isPause)
-				_time = CountTime (_time);
-			if (_time <= 0)
+				_stageTime = CountTime (_stageTime);
+			if (_stageTime <= 0)
 				MoveToGameOver ();
-			_timerText.text = ((int)_time).ToString ();
+			_timerText.text = ((int)_stageTime).ToString ();
 
 			/*Control fishes' moving*/
 			_fishTurnaroundTime = CountTime (_fishTurnaroundTime);
@@ -143,7 +143,7 @@ public class StageScript : MonoBehaviour {
 		_isStagePlaying = false;
 		SoundManager.Instance.StopBackgroundMusic1 ();
 		PlayerScript _playerScript = GameObject.Find ("PlayerGroup").GetComponent<PlayerScript> ();
-		GameManager.Instance.InsertRecord (_playerScript.CachesNumber, _playerScript.Journey, (int)(STAGE_TIME - _time));
+		GameManager.Instance.InsertRecord (_playerScript.CachesNumber, _playerScript.Journey, (int)(STAGE_TIME - _stageTime));
 
 		SceneLoader.Instance.LoadLevel (SceneLoader.Scenes.StageOver);
 	}
