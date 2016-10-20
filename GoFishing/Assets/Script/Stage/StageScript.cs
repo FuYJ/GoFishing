@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class StageScript : MonoBehaviour {
 
@@ -147,8 +148,10 @@ public class StageScript : MonoBehaviour {
 		SoundManager.Instance.StopBackgroundMusic1 ();
 		PlayerScript _playerScript = GameObject.Find ("PlayerGroup").GetComponent<PlayerScript> ();
 		GameManager.Instance.InsertRecord (_playerScript.CachesNumber, _playerScript.Journey, (int)(_stageTime));
-
-		SceneLoader.Instance.LoadLevel (SceneLoader.Scenes.StageOver);
+        List<GameRecord> gameRecord = GameManager.Instance.LoadGameRecords();
+        DailyTask data = GameManager.Instance.InitializeDailyTask();
+        data.CheckTask(gameRecord[gameRecord.Count]);
+        SceneLoader.Instance.LoadLevel (SceneLoader.Scenes.StageOver);
 	}
 
 	public void ShowPlayerInformation(){
