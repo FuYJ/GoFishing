@@ -20,7 +20,7 @@ public class ScoreBoard : MonoBehaviour {
 	}
 
 	void HookProbabilityChanged(){
-		m_hookProbabilityNumber.text = m_player.HookProbability.ToString () + "%";
+		m_hookProbabilityNumber.text = m_player.HookProbability.ToString ("F2") + "%";
 	}
 
 	void JourneyChanged(){
