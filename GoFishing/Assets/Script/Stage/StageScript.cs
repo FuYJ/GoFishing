@@ -24,6 +24,7 @@ public class StageScript : MonoBehaviour {
 	private GameObject _basicUI;
 	private GameObject _playerInformation;
 	private GameObject _pauseMenu;
+	private GameObject _timer;
 	public GameObject m_gameManager;
 	public GameObject m_soundManager;
 	public GameObject m_sceneLoader;
@@ -56,12 +57,15 @@ public class StageScript : MonoBehaviour {
 		_pauseMenu = GameObject.Find ("PlayerGroup/PauseUI/PauseMenu");
 		_timerText = GameObject.Find ("PlayerGroup/BasicUI/Timer/TimerText").GetComponent<TextMesh> ();
 		_playerInformation = GameObject.Find ("PlayerGroup/PauseUI/PlayerInformation");
+		_timer = GameObject.Find ("PlayerGroup/BasicUI/Timer");
 
 		ShowBasicUI ();
 
 		SoundManager.Instance.StopBackgroundMusic2 ();
 		SoundManager.Instance.PlayBackgroundMusic1 ();
 		_stageTime = STAGE_TIME;
+		if (STAGE_TIME == 1e9)
+			_timer.SetActive (false);
 
 		GameObject[] _fish = GameObject.FindGameObjectsWithTag ("Fish");
 		_fishNumber = _fish.Length;
@@ -79,11 +83,13 @@ public class StageScript : MonoBehaviour {
 	public void Update () {
 		if (_isStagePlaying) {
 			/*Control timer*/
-			if (!_isPause)
+			if (!_isPause && _timer.activeSelf)
 				_stageTime = CountTime (_stageTime);
 			if (_stageTime <= 0)
 				MoveToGameOver ();
-			_timerText.text = ((int)_stageTime).ToString ();
+
+			if(_timer.activeSelf)
+				_timerText.text = ((int)_stageTime).ToString ();
 
 			/*Control fishes' moving*/
 			_fishTurnaroundTime = CountTime (_fishTurnaroundTime);
