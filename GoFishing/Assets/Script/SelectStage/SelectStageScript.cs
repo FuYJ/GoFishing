@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.UI;
 
 public class SelectStageScript : MonoBehaviour {
@@ -19,6 +20,7 @@ public class SelectStageScript : MonoBehaviour {
 	public Texture m_starFilled;
 
 	private States _nowState = States.SelectStageMode;
+	private List<GameObject> _stageButton;
 
 	private enum States
 	{
@@ -39,11 +41,17 @@ public class SelectStageScript : MonoBehaviour {
 	// Update is called once per frame
 	void Start () {
 		_stageButtonPos = new Vector3 (-282, -56, 0);
+		_stageButton = new List<GameObject> ();
 		ShowSelectStageModeBoard ();
 	}
 		
 	public void ShowSelectStageModeBoard (){
+		_stageButtonPos = new Vector3 (-282, -56, 0);
 		_nowState = States.SelectStageMode;
+		for (int i = 0; i < _stageButton.Count; i++) {
+			Destroy (_stageButton [i]);
+		}
+		_stageButton.Clear ();
 		m_selectStageModeBoard.SetActive (true);
 		m_selectStageBoard.SetActive (false);
 	}
@@ -56,7 +64,7 @@ public class SelectStageScript : MonoBehaviour {
 		int scenesNumber = GameManager.Instance.m_sceneNames.scenes.Length;
 		for (int i = 0; i < scenesNumber; i++) {
 			if (GameManager.Instance.m_sceneNames.scenes [i].isFreeStage) {
-				CreateStageButton (GameManager.Instance.m_sceneNames.scenes [i], i);
+				_stageButton.Add(CreateStageButton (GameManager.Instance.m_sceneNames.scenes [i], i));
 			}
 		}
 	}
@@ -69,12 +77,12 @@ public class SelectStageScript : MonoBehaviour {
 		int scenesNumber = GameManager.Instance.m_sceneNames.scenes.Length;
 		for (int i = 0; i < scenesNumber; i++) {
 			if (GameManager.Instance.m_sceneNames.scenes [i].isTimeLimitStage) {
-				CreateStageButton (GameManager.Instance.m_sceneNames.scenes [i], i);
+				_stageButton.Add(CreateStageButton (GameManager.Instance.m_sceneNames.scenes [i], i));
 			}
 		}
 	}
 
-	public void CreateStageButton(SceneNameHolder scene, int index){
+	public GameObject CreateStageButton(SceneNameHolder scene, int index){
 		GameObject o = Instantiate (m_stageButton);
 		o.GetComponent<StageButton> ().StageIndex = (SceneLoader.Scenes)index;
 		o.GetComponentInChildren<Text> ().text = scene.stageName;
@@ -83,6 +91,7 @@ public class SelectStageScript : MonoBehaviour {
 		o.transform.localPosition = _stageButtonPos;
 		o.transform.localScale = Vector3.one;
 		_stageButtonPos.x += 210;
+		return o;
 	}
 
 	public void SetStarNumber(GameObject o, SceneNameHolder scene){

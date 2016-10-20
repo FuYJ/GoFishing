@@ -25,12 +25,13 @@ public class StageScript : MonoBehaviour {
 	private GameObject _basicUI;
 	private GameObject _playerInformation;
 	private GameObject _pauseMenu;
+	private GameObject _timer;
 	public GameObject m_gameManager;
 	public GameObject m_soundManager;
 	public GameObject m_sceneLoader;
 	private TextMesh _timerText;
-	private float _time;
-	private bool _isPause = false;
+	private float _stageTime;
+	protected bool _isPause = false;
 
 	/*Grid*/
 	public GameObject m_grid;
@@ -57,12 +58,13 @@ public class StageScript : MonoBehaviour {
 		_pauseMenu = GameObject.Find ("PlayerGroup/PauseUI/PauseMenu");
 		_timerText = GameObject.Find ("PlayerGroup/BasicUI/Timer/TimerText").GetComponent<TextMesh> ();
 		_playerInformation = GameObject.Find ("PlayerGroup/PauseUI/PlayerInformation");
+		_timer = GameObject.Find ("PlayerGroup/BasicUI/Timer");
 
 		ShowBasicUI ();
 
 		SoundManager.Instance.StopBackgroundMusic2 ();
 		SoundManager.Instance.PlayBackgroundMusic1 ();
-		_time = STAGE_TIME;
+		_stageTime = 0;
 
 		GameObject[] _fish = GameObject.FindGameObjectsWithTag ("Fish");
 		_fishNumber = _fish.Length;
@@ -81,10 +83,11 @@ public class StageScript : MonoBehaviour {
 		if (_isStagePlaying) {
 			/*Control timer*/
 			if (!_isPause)
-				_time = CountTime (_time);
-			if (_time <= 0)
+				_stageTime = CountTime (_stageTime);
+			if (_stageTime >= STAGE_TIME)
 				MoveToGameOver ();
-			_timerText.text = ((int)_time).ToString ();
+			
+			_timerText.text = ((int)_stageTime).ToString ();
 
 			/*Control fishes' moving*/
 			_fishTurnaroundTime = CountTime (_fishTurnaroundTime);
@@ -109,7 +112,7 @@ public class StageScript : MonoBehaviour {
 	}
 
 	protected float CountTime (float time){
-		time -= Time.deltaTime;
+		time += Time.deltaTime;
 		return time;
 	}
 
@@ -144,7 +147,7 @@ public class StageScript : MonoBehaviour {
 		_isStagePlaying = false;
 		SoundManager.Instance.StopBackgroundMusic1 ();
 		PlayerScript _playerScript = GameObject.Find ("PlayerGroup").GetComponent<PlayerScript> ();
-		GameManager.Instance.InsertRecord (_playerScript.CachesNumber, _playerScript.Journey, (int)(STAGE_TIME - _time));
+		GameManager.Instance.InsertRecord (_playerScript.CachesNumber, _playerScript.Journey, (int)(_stageTime));
         List<GameRecord> gameRecord = GameManager.Instance.LoadGameRecords();
         DailyTask data = GameManager.Instance.InitializeDailyTask();
         data.CheckTask(gameRecord[gameRecord.Count]);
