@@ -32,9 +32,9 @@ public class DailyTask : MonoBehaviour {
         TASK_NUMBER = 3;
         _taskNumber = new int[3] {0, 1, 2 };
         _complete = new float[3] {0, 0, 0};
-//        _data = GameManager.Instance.InitializeDailyTask();
-//        _taskNumber = _data._taskNumber;
-//        _complete = _data.Complete;
+        _data = GameManager.Instance.InitializeDailyTask();
+        _taskNumber = _data._taskNumber;
+        _complete = _data.Complete;
         ShowTask();
     }
 
@@ -99,9 +99,12 @@ public class DailyTask : MonoBehaviour {
                     _complete[i] += (float)record.Journey;
                     break;
             }
+            Debug.Log(_complete[i] + "////");
         }
+
         data.TaskNumber = _taskNumber;
         data.Complete = _complete;
+        data.Date = DateTime.Now;
         GameManager.Instance.EditDailyTaskData(data);
     }
 

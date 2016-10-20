@@ -486,7 +486,6 @@ public class GameManager : MonoBehaviour {
         _dailyTask.TaskNumber = new int[] { Task0Number[0], Task1Number[0], Task2Number[0] };
         _dailyTask.Complete = new float[] { Complete0[0], Complete1[0], Complete2[0] };
         _dailyTask.Date = Convert.ToDateTime(Date[0]);
-        _dailyTask.CreateTaskRandomly();
         return _dailyTask;
     }
 
