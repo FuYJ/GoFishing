@@ -457,6 +457,7 @@ public class GameManager : MonoBehaviour {
 
     public DailyTask InitializeDailyTask()
     {
+        Debug.Log(_player.Name);
         _reader = _db.searchAccordData(DAILY_TASK, "PlayerName", "=", "'" + _player.Name + "'");
         int[] Task0Number = _db.readIntData(_reader, "Task0Number");
         _reader = _db.searchAccordData(DAILY_TASK, "PlayerName", "=", "'" + _player.Name + "'");

@@ -29,7 +29,6 @@ public class MenuScript : MonoBehaviour {
     public void OnDailyTask()
     {
         SoundManager.Instance.PlayClickSound();
-        Debug.Log("--------------------------------------");
         SceneLoader.Instance.LoadLevel(SceneLoader.Scenes.DailyTask);
     }
 

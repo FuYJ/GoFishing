@@ -13,7 +13,7 @@ public class DailyTask : MonoBehaviour {
     private int _taskSize;
     private int[] _taskNumber;
     private float[] _complete;
-    private int TASK_TABLE_MAX;
+    private int TASK_TABLE_MAX = 3;
     private int TASK_NUMBER;
     private DateTime _date;
 
@@ -30,6 +30,10 @@ public class DailyTask : MonoBehaviour {
         TASK_NUMBER = jsonData["Task"].Count;
         _taskNumber = new int[3] {-1, -1, -1 };
         _complete = new float[3];
+        _data = GameManager.Instance.InitializeDailyTask();
+        _taskNumber = _data._taskNumber;
+        _complete = _data.Complete;
+        ShowTask();
     }
 
 	void Start () {
@@ -41,7 +45,7 @@ public class DailyTask : MonoBehaviour {
         _taskSize = 0;
         while (_taskSize < TASK_TABLE_MAX)
         {
-            _taskNumber[_taskSize] = UnityEngine.Random.Range(0, TASK_NUMBER);
+            _taskNumber[_taskSize] = UnityEngine.Random.Range(0, TASK_NUMBER - 1);
             _complete[_taskSize] = 0;
             _taskSize++;
         }
@@ -70,7 +74,7 @@ public class DailyTask : MonoBehaviour {
             {
                 Text[] text = _task[i].GetComponentsInChildren<Text>();
                 text[0].text = jsonData["Task"][_taskNumber[i]]["context"].ToString();
-                text[1].text = _complete[i] + "/" + jsonData["Task"][i]["total"];
+                text[1].text = _complete[_taskNumber[i]] + "/" + jsonData["Task"][_taskNumber[i]]["total"];
             }
         }
     }
@@ -99,8 +103,9 @@ public class DailyTask : MonoBehaviour {
 	}
 
 	public void OnBackButtonClick(){
-		
-	}
+        SoundManager.Instance.PlayClickSound();
+        SceneLoader.Instance.LoadLevel(SceneLoader.Scenes.Menu);
+    }
 
     public string Name
     {
