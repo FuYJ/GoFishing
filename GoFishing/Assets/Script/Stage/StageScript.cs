@@ -150,7 +150,7 @@ public class StageScript : MonoBehaviour {
 		GameManager.Instance.InsertRecord (_playerScript.CachesNumber, _playerScript.Journey, (int)(_stageTime));
         List<GameRecord> gameRecord = GameManager.Instance.LoadGameRecords();
         DailyTask data = GameManager.Instance.InitializeDailyTask();
-        data.CheckTask(gameRecord[gameRecord.Count]);
+        data.CheckTask(gameRecord[gameRecord.Count - 1]);
         SceneLoader.Instance.LoadLevel (SceneLoader.Scenes.StageOver);
 	}
 
