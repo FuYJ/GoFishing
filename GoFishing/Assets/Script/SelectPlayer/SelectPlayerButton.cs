@@ -19,6 +19,7 @@ public class SelectPlayerButton : MonoBehaviour {
 		SelectPlayerScript _selectPlayerScript;
 		_selectPlayerScript = GameObject.Find ("SelectPlayerScript").GetComponent<SelectPlayerScript>();
 		_selectPlayerScript.LoadNextScene (_playerIndex);
+        GameManager.Instance.InitializeDailyTask();
 	}
 
 	public void OnEditButtonClick(){

@@ -30,7 +30,7 @@ public class GameRecordScript : MonoBehaviour {
 
 	private void LoadPlayerRecords(){
 		_gameRecords = GameManager.Instance.LoadGameRecords ();
-		RectTransform recordsFieldRect = m_recordsField.GetComponent<RectTransform> ();
+        RectTransform recordsFieldRect = m_recordsField.GetComponent<RectTransform> ();
 		recordsFieldRect.offsetMin = new Vector2 (recordsFieldRect.offsetMin.x, -(225 + (_gameRecords.Count - 3) * 75));
 		recordsFieldRect.offsetMax = new Vector2 (recordsFieldRect.offsetMax.x, 225 + (_gameRecords.Count - 3) * 75);
 		_recordPos = new Vector3 (-40, (225 + (_gameRecords.Count - 3) * 75) - 75, 0);
@@ -44,7 +44,7 @@ public class GameRecordScript : MonoBehaviour {
 			recordText [0].text = "關卡：" + GameManager.Instance.m_sceneNames.scenes [_gameRecords [i].StageIndex].stageName;
 			recordText [1].text = "漁獲量：" + _gameRecords [i].Caches.ToString ();
 			recordText [2].text = "航行距離：" + _gameRecords [i].Journey.ToString () + " km";
-			recordText [3].text = "遊戲時長：" + _gameRecords [i].Duration.ToString ();
+			recordText [3].text = "遊戲時長：" + _gameRecords [i].Duration.ToString () + "sec";
 			recordText [4].text = "日期：" + _gameRecords [i].Date;
 			recordText [5].text = "時間：" + _gameRecords [i].Time;
 		}

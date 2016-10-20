@@ -26,6 +26,13 @@ public class MenuScript : MonoBehaviour {
 		SceneLoader.Instance.LoadLevel (SceneLoader.Scenes.SelectStage);
 	}
 
+    public void OnDailyTask()
+    {
+        SoundManager.Instance.PlayClickSound();
+        Debug.Log("--------------------------------------");
+        SceneLoader.Instance.LoadLevel(SceneLoader.Scenes.DailyTask);
+    }
+
 	public void OnGameRecordButtonClick () {
 		SoundManager.Instance.PlayClickSound ();
 		SceneLoader.Instance.LoadLevel (SceneLoader.Scenes.GameRecord);

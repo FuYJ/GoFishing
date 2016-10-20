@@ -12,9 +12,8 @@ public class StartScript : MonoBehaviour
 	private Button _startbutton;
 	private Text _startButtonText;
 
-	void Awake (){
-
-		if (SoundManager.Instance == null)
+    void Awake (){
+        if (SoundManager.Instance == null)
 			Instantiate (m_soundManager);
 		if (GameManager.Instance == null)
 			Instantiate (m_gameManager);
@@ -23,7 +22,7 @@ public class StartScript : MonoBehaviour
 	}
 
 	void Start () {
-		SoundManager.Instance.PlayBackgroundMusic2 ();
+        SoundManager.Instance.PlayBackgroundMusic2 ();
 		_startbutton = GameObject.Find ("Canvas/StartButton").GetComponent<Button>();
 		_startButtonText = GameObject.Find ("Canvas/StartButton/Text").GetComponent<Text> ();
 	}
