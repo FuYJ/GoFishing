@@ -441,10 +441,10 @@ public class GameManager : MonoBehaviour {
 		});
 	}
 
-    public void EditDailyTaskData(DailyTask date, string name)
+    public void EditDailyTaskData(DailyTask date)
     {
                 _db.updateInto(DAILY_TASK, _dailyTaskCol, new string[] {
-                    "'" + name + "'",
+                    "'" + _player.Name + "'",
                     date.TaskNumber[0].ToString(),
                     date.Complete[0].ToString(),
                     date.TaskNumber[1].ToString(),
@@ -452,7 +452,7 @@ public class GameManager : MonoBehaviour {
                     date.TaskNumber[2].ToString(),
                     date.Complete[2].ToString(),
                     "'" + date.Date.ToString() + "'",
-                }, "PlayerName", "'" + name + "'");
+                }, "PlayerName", "'" + _player.Name + "'");
     }
 
     public DailyTask InitializeDailyTask()

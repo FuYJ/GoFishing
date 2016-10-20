@@ -16,6 +16,8 @@ public class DailyTask : MonoBehaviour {
     private int TASK_TABLE_MAX = 3;
     private int TASK_NUMBER;
     private DateTime _date;
+    private String[] GOAL = { "Fish 5 fishes", "Complete any three levels", "Go for 5 kilometers" };
+    private float[] COMPLETE = {5, 3, 5};
 
     private string jsonString;
     private JsonData jsonData;
@@ -23,16 +25,16 @@ public class DailyTask : MonoBehaviour {
     private DailyTask _data;
 
     void Awake () {
-        jsonString = File.ReadAllText(Application.dataPath + "/DailyTask.json");
-        jsonData = JsonMapper.ToObject(jsonString);
+//        jsonString = File.ReadAllText(Application.dataPath + "/DailyTask.json");
+//        jsonData = JsonMapper.ToObject(jsonString);
         _taskSize = 0;
         TASK_TABLE_MAX = 3;
-        TASK_NUMBER = jsonData["Task"].Count;
-        _taskNumber = new int[3] {-1, -1, -1 };
-        _complete = new float[3];
-        _data = GameManager.Instance.InitializeDailyTask();
-        _taskNumber = _data._taskNumber;
-        _complete = _data.Complete;
+        TASK_NUMBER = 3;
+        _taskNumber = new int[3] {0, 1, 2 };
+        _complete = new float[3] {0, 0, 0};
+//        _data = GameManager.Instance.InitializeDailyTask();
+//        _taskNumber = _data._taskNumber;
+//        _complete = _data.Complete;
         ShowTask();
     }
 
@@ -73,14 +75,16 @@ public class DailyTask : MonoBehaviour {
             if(_taskNumber[i] >= 0)
             {
                 Text[] text = _task[i].GetComponentsInChildren<Text>();
-                text[0].text = jsonData["Task"][_taskNumber[i]]["context"].ToString();
-                text[1].text = _complete[_taskNumber[i]] + "/" + jsonData["Task"][_taskNumber[i]]["total"];
+                text[0].text = GOAL[_taskNumber[i]];
+                text[1].text = _complete[_taskNumber[i]] + "/" + COMPLETE[_taskNumber[i]];
             }
         }
     }
 
     public void CheckTask(GameRecord record)
     {
+        DailyTask data = new DailyTask();
+        Debug.Log(record.Caches + "+");
         for(int i = 0; i < TASK_TABLE_MAX; i++)
         {
             switch (_taskNumber[i])
@@ -96,6 +100,9 @@ public class DailyTask : MonoBehaviour {
                     break;
             }
         }
+        data.TaskNumber = _taskNumber;
+        data.Complete = _complete;
+        GameManager.Instance.EditDailyTaskData(data);
     }
 
     private void LoadPlayerRecords(){
