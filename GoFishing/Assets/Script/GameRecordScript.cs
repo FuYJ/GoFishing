@@ -43,8 +43,8 @@ public class GameRecordScript : MonoBehaviour {
 			Text[] recordText = o.GetComponentsInChildren<Text> ();
 			recordText [0].text = "關卡：" + GameManager.Instance.m_sceneNames.scenes [_gameRecords [i].StageIndex].stageName;
 			recordText [1].text = "漁獲量：" + _gameRecords [i].Caches.ToString ();
-			recordText [2].text = "航行距離：" + _gameRecords [i].Journey.ToString () + " km";
-			recordText [3].text = "遊戲時長：" + _gameRecords [i].Duration.ToString () + "sec";
+			recordText [2].text = "航行距離：" + _gameRecords [i].Journey.ToString ("F2") + " km";
+			recordText [3].text = "遊戲時長：" + _gameRecords [i].Duration.ToString () + " 秒";
 			recordText [4].text = "日期：" + _gameRecords [i].Date;
 			recordText [5].text = "時間：" + _gameRecords [i].Time;
 		}
